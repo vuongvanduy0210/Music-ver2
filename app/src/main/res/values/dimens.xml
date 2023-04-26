@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="height_notification_music">80dp</dimen>
+    <dimen name="height_bottom_player">58dp</dimen>
+    <dimen name="height_bottom_navigation">53dp</dimen>
+    <dimen name="height_action_bar">48dp</dimen>
+
+    <dimen name="text_size_tv_name_song">17dp</dimen>
+    <dimen name="text_size_tv_singer">15dp</dimen>
+    <dimen name="text_size_title_action_bar">20dp</dimen>
+
+    <dimen name="text_size_name_song_player_music">25dp</dimen>
+    <dimen name="text_size_singer_player_music">22dp</dimen>
+</resources>
