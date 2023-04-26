@@ -1,17 +1,13 @@
 package com.vuongvanduy.music.fragment
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.pm.PackageManager
 import android.graphics.Rect
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.util.TypedValue
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -20,8 +16,6 @@ import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
-import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -31,6 +25,7 @@ import com.vuongvanduy.music.databinding.FragmentAllSongsBinding
 import com.vuongvanduy.music.model.Song
 import com.vuongvanduy.music.my_interface.IOnClickSongListener
 import com.vuongvanduy.music.util.*
+import com.vuongvanduy.music.viewmodel.DataViewModel
 import com.vuongvanduy.music.viewmodel.DeviceSongsViewModel
 
 class DeviceSongsFragment : Fragment() {
@@ -43,22 +38,6 @@ class DeviceSongsFragment : Fragment() {
 
     private lateinit var viewModel: DeviceSongsViewModel
 
-    private val activityResultLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-            if (isGranted) {
-                // Quyền được cấp, xử lý logic tại đây
-                viewModel.getLocalMusic()
-                Toast.makeText(
-                    requireContext(),
-                    "Get music from your phone success",
-                    Toast.LENGTH_SHORT
-                ).show()
-            } else {
-                // Quyền bị từ chối, xử lý logic tại đây
-                Log.e("FRAGMENT_NAME", "Permission denied")
-            }
-        }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -66,20 +45,24 @@ class DeviceSongsFragment : Fragment() {
         binding = FragmentAllSongsBinding.inflate(inflater, container, false)
         activity = requireActivity() as MainActivity
         viewModel = ViewModelProvider(activity)[DeviceSongsViewModel::class.java]
-        viewModel.setData(requireContext())
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        requestPermissionReadStorage()
+        getDataFromHomeFragment()
 
         setRecyclerViewSong()
 
         setOnClickBtSearchView()
 
         observerDisplayKeyboard()
+    }
+
+    private fun getDataFromHomeFragment() {
+        val dataViewModel: DataViewModel = ViewModelProvider(activity)[DataViewModel::class.java]
+        dataViewModel.getListSongsDevice().value?.let { viewModel.setData(it) }
     }
 
     @SuppressLint("SetTextI18n")
@@ -215,22 +198,5 @@ class DeviceSongsFragment : Fragment() {
         super.onDestroy()
         val rootView = activity.window.decorView.rootView
         rootView.viewTreeObserver.removeOnGlobalLayoutListener(observerDisplayKeyboard())
-    }
-
-    private fun requestPermissionReadStorage() {
-        Looper.myLooper()?.let {
-            Handler(it).postDelayed({
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-                    viewModel.getLocalMusic()
-                    return@postDelayed
-                }
-                if (activity.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                    // get list song from device and send to music device fragment
-                    viewModel.getLocalMusic()
-                } else {
-                    activityResultLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
-                }
-            }, 500)
-        }
     }
 }

@@ -22,6 +22,17 @@
             android:background="@android:color/holo_blue_dark"
             app:popupTheme="@style/Theme.AppCompat.Light">
 
+            <ImageView
+                android:id="@+id/img_back"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginStart="15dp"
+                android:layout_marginBottom="10dp"
+                android:background="@color/blueLight"
+                android:src="@drawable/ic_back" />
+
             <TextView
                 android:id="@+id/tool_bar_title"
                 android:layout_width="wrap_content"

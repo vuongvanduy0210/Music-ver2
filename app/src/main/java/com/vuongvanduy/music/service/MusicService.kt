@@ -44,7 +44,6 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
     private var isPlaying: Boolean = false
     private var isLooping: Boolean = false
     private var isShuffling: Boolean = false
-    private var isListShuffled: Boolean = false
 
     private var currentTime: Int = 0
     private var finalTime: Int = 0

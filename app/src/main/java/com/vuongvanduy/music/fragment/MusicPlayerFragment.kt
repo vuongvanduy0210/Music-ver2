@@ -88,11 +88,17 @@ class MusicPlayerFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         observerAction()
         setListenerButton()
-        createToolbar()
+        setListenerToolbar()
     }
 
-    private fun createToolbar() {
-
+    private fun setListenerToolbar() {
+        binding.imgBack.setOnClickListener {
+            activity.supportFragmentManager.popBackStack()
+            activity.getBinding().apply {
+                mainUi.visibility = View.VISIBLE
+                appBar.visibility = View.VISIBLE
+            }
+        }
     }
 
     private fun setListenerButton() {

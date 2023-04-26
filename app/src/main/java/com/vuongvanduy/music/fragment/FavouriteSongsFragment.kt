@@ -10,11 +10,6 @@ import android.view.ViewGroup
 import com.vuongvanduy.music.R
 import com.vuongvanduy.music.util.*
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
 class FavouriteSongsFragment : Fragment() {
 
     override fun onCreateView(
@@ -32,12 +27,9 @@ class FavouriteSongsFragment : Fragment() {
     @SuppressLint("CommitTransaction")
     override fun onResume() {
         super.onResume()
-
-        Log.e(FAVOURITE_SONGS_FRAGMENT_TAG, "onResume")
     }
 
     override fun onPause() {
         super.onPause()
-        Log.e(FAVOURITE_SONGS_FRAGMENT_TAG, "onPause")
     }
 }

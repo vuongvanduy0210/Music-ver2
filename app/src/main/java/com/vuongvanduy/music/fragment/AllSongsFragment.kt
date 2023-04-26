@@ -27,6 +27,7 @@ import com.vuongvanduy.music.model.Song
 import com.vuongvanduy.music.my_interface.IOnClickSongListener
 import com.vuongvanduy.music.util.*
 import com.vuongvanduy.music.viewmodel.AllSongsViewModel
+import com.vuongvanduy.music.viewmodel.DataViewModel
 
 class AllSongsFragment : Fragment() {
 
@@ -46,6 +47,7 @@ class AllSongsFragment : Fragment() {
         binding = FragmentAllSongsBinding.inflate(inflater, container, false)
         activity = requireActivity() as MainActivity
         viewModel = ViewModelProvider(activity)[AllSongsViewModel::class.java]
+//        viewModel.setData()
         return binding.root
     }
 
@@ -53,13 +55,20 @@ class AllSongsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         Log.e(ALL_SONGS_FRAGMENT_TAG, "onViewCreated")
 
-        viewModel.setData()
+        getDataFromHomeFragment()
 
         setRecyclerViewSong()
 
         setOnClickBtSearchView()
 
         observerDisplayKeyboard()
+
+
+    }
+
+    private fun getDataFromHomeFragment() {
+        val dataViewModel: DataViewModel = ViewModelProvider(activity)[DataViewModel::class.java]
+        dataViewModel.getListSongsOnline().value?.let { viewModel.setData(it) }
     }
 
     @SuppressLint("SetTextI18n")
