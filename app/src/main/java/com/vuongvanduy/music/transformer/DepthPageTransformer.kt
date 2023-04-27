@@ -2,6 +2,7 @@ package com.vuongvanduy.music.transformer
 
 import android.view.View
 import androidx.viewpager2.widget.ViewPager2
+import kotlin.math.abs
 
 
 class DepthPageTransformer : ViewPager2.PageTransformer {
@@ -28,7 +29,7 @@ class DepthPageTransformer : ViewPager2.PageTransformer {
 
             // Scale the page down (between MIN_SCALE and 1).
             val scaleFactor = (MIN_SCALE
-                    + (1 - MIN_SCALE) * (1 - Math.abs(position)))
+                    + (1 - MIN_SCALE) * (1 - abs(position)))
             view.scaleX = scaleFactor
             view.scaleY = scaleFactor
         } else { // (1,+Infinity]

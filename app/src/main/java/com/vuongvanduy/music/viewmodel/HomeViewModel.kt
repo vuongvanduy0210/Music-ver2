@@ -13,6 +13,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
+import com.vuongvanduy.music.model.Category
 import com.vuongvanduy.music.model.Photo
 import com.vuongvanduy.music.model.Song
 import com.vuongvanduy.music.util.*
@@ -30,6 +31,12 @@ class HomeViewModel : ViewModel() {
     }
     private val photos: MutableLiveData<MutableList<Photo>> by lazy {
         MutableLiveData<MutableList<Photo>>()
+    }
+    private val allSongsShow: MutableLiveData<MutableList<Song>> by lazy {
+        MutableLiveData<MutableList<Song>>()
+    }
+    private val deviceSongsShow: MutableLiveData<MutableList<Song>> by lazy {
+        MutableLiveData<MutableList<Song>>()
     }
 
     private val listSongsPath = mutableListOf<String>()
@@ -61,6 +68,37 @@ class HomeViewModel : ViewModel() {
                 }
             }
             photos.value = list
+        }
+    }
+
+    fun getListCategories(): MutableList<Category> {
+        getAllSongsShow()
+        getDeviceSongsShow()
+        val list = mutableListOf<Category>()
+        allSongsShow.value?.let { Category("Online Songs", it) }?.let { list.add(it) }
+        deviceSongsShow.value?.let { Category("Device Songs", it) }?.let { list.add(it) }
+        return list
+    }
+
+    private fun getAllSongsShow() {
+        val list = mutableListOf<Song>()
+        if (onlineSongs.value != null) {
+            for (i in 0 until onlineSongs.value!!.size - 10) {
+                val song = onlineSongs.value!![i]
+                list.add(song)
+            }
+            allSongsShow.value = list
+        }
+    }
+
+    private fun getDeviceSongsShow() {
+        val list = mutableListOf<Song>()
+        if (deviceSongs.value != null) {
+            for (i in 0 until deviceSongs.value!!.size) {
+                val song = deviceSongs.value!![i]
+                list.add(song)
+            }
+            deviceSongsShow.value = list
         }
     }
 
@@ -113,7 +151,7 @@ class HomeViewModel : ViewModel() {
         musicRef.listAll().addOnSuccessListener {
             val items = it.items
             if (items.isEmpty()) {
-                Log.e(ALL_SONGS_FRAGMENT_TAG, "List Song Firebase is empty")
+                Log.e(ONLINE_SONGS_FRAGMENT_TAG, "List Song Firebase is empty")
                 return@addOnSuccessListener
             }
             items.forEach {result ->

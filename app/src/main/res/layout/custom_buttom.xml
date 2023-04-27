@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.AppCompatButton xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/btn_custom"
+    android:layout_width="60dp"
+    android:layout_height="35dp"
+    android:visibility="visible"
+    android:text="Play all"
+    android:textSize="14dp"
+    android:textStyle="bold"
+    android:textColor="@color/black"
+    android:background="@drawable/custom_button_play_all"
+    android:padding="6dp"
+    android:minWidth="64dp"
+    android:minHeight="64dp"
+    android:layout_gravity="end"
+    android:gravity="center"
+    android:textAllCaps="false"/>

@@ -21,16 +21,16 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.vuongvanduy.music.activity.MainActivity
 import com.vuongvanduy.music.adapter.SongAdapter
-import com.vuongvanduy.music.databinding.FragmentAllSongsBinding
+import com.vuongvanduy.music.databinding.FragmentOnlineSongsBinding
 import com.vuongvanduy.music.model.Song
-import com.vuongvanduy.music.my_interface.IOnClickSongListener
+import com.vuongvanduy.music.my_interface.IClickSongListener
 import com.vuongvanduy.music.util.*
 import com.vuongvanduy.music.viewmodel.DataViewModel
 import com.vuongvanduy.music.viewmodel.DeviceSongsViewModel
 
 class DeviceSongsFragment : Fragment() {
 
-    private lateinit var binding: FragmentAllSongsBinding
+    private lateinit var binding: FragmentOnlineSongsBinding
 
     private lateinit var activity: MainActivity
 
@@ -42,7 +42,7 @@ class DeviceSongsFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentAllSongsBinding.inflate(inflater, container, false)
+        binding = FragmentOnlineSongsBinding.inflate(inflater, container, false)
         activity = requireActivity() as MainActivity
         viewModel = ViewModelProvider(activity)[DeviceSongsViewModel::class.java]
         return binding.root
@@ -67,7 +67,7 @@ class DeviceSongsFragment : Fragment() {
 
     @SuppressLint("SetTextI18n")
     private fun setRecyclerViewSong() {
-        songAdapter = SongAdapter(object: IOnClickSongListener {
+        songAdapter = SongAdapter(object: IClickSongListener {
             override fun onClickSong(song: Song) {
                 playSong(song)
             }
@@ -112,9 +112,7 @@ class DeviceSongsFragment : Fragment() {
                 }
             }
             openMusicPlayer()
-            getBinding().apply {
-                miniPlayer.visibility = View.VISIBLE
-            }
+            getBinding().miniPlayer.visibility = View.VISIBLE
         }
     }
 
@@ -145,7 +143,6 @@ class DeviceSongsFragment : Fragment() {
     }
 
     private fun observerDisplayKeyboard(): ViewTreeObserver.OnGlobalLayoutListener {
-        // Tạo một ViewTreeObserver.OnGlobalLayoutListener
         val keyboardVisibilityListener = ViewTreeObserver.OnGlobalLayoutListener {
             val rect = Rect()
             val rootView = activity.window.decorView.rootView
@@ -163,15 +160,12 @@ class DeviceSongsFragment : Fragment() {
                 if (isKeyboardOpen) {
                     // Xử lý sự kiện mở bàn phím ảo
                     activity.getBinding().apply {
-
                         bottomNavigation.visibility = View.GONE
                     }
                 } else {
-                    // Xử lý sự kiện đóng bàn phím ảo
                     Looper.myLooper()?.let {
                         Handler(it).postDelayed({
                             activity.getBinding().apply {
-
                                 if (bottomNavigation.visibility == View.GONE) {
                                     bottomNavigation.visibility = View.VISIBLE
                                 }
@@ -180,9 +174,7 @@ class DeviceSongsFragment : Fragment() {
                     }
                 }
             }
-            // Nếu chiều cao của bàn phím > 200dp, xem như bàn phím đang mở
         }
-        // Đăng ký ViewTreeObserver.OnGlobalLayoutListener với rootView
         val rootView = activity.window.decorView.rootView
         rootView.viewTreeObserver.addOnGlobalLayoutListener(keyboardVisibilityListener)
         return keyboardVisibilityListener

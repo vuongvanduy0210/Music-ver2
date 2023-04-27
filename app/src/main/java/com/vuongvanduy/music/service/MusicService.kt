@@ -1,6 +1,5 @@
 package com.vuongvanduy.music.service
 
-import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.PendingIntent
 import android.app.Service
@@ -69,9 +68,16 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
         val bundle = intent?.extras
         if (bundle != null) {
             //receive list songs
-            val listReceive = bundle.getSerializable(KEY_LIST_SONGS)
-            if (listReceive != null) {
-                songs = listReceive as MutableList<Song>
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+                val listReceive = bundle.getSerializable(KEY_LIST_SONGS)
+                if (listReceive != null) {
+                    songs = listReceive as MutableList<Song>
+                }
+            } else {
+                val listReceive = bundle.getSerializable(KEY_LIST_SONGS, Song::class.java)
+                if (listReceive != null) {
+                    songs = listReceive as MutableList<Song>
+                }
             }
 
             //receive song
@@ -81,11 +87,9 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
             }
         }
 
-
         //receive progress
         progressReceive = intent!!.getIntExtra(KEY_PROGRESS, 0)
         if (progressReceive != 0) {
-            // thuc hien hanh dong sau khi nhan action tu activity hoac fragment
             handleActionMusic(ACTION_CONTROL_SEEK_BAR)
         }
 
@@ -110,6 +114,7 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
             ACTION_LOOP -> loopMusic()
             ACTION_SHUFFLE -> shuffleMusic()
             ACTION_CONTROL_SEEK_BAR -> mediaPlayer?.seekTo(progressReceive)
+            ACTION_RELOAD_DATA -> sendData(ACTION_RELOAD_DATA)
         }
     }
 
@@ -245,20 +250,10 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
             )
         }
 
-        //set on click notification
-        val intent = Intent(this, MainActivity::class.java)
-        @SuppressLint("UnspecifiedImmutableFlag")
-        val pendingIntent = PendingIntent.getActivity(
-            this,
-            0,
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT
-        )
-
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_music)
             .setSound(null)
-            .setContentIntent(pendingIntent)
+            .setContentIntent(getPendingIntentClickNotification())
             .setOngoing(true)
 
         if (currentSong?.getImageUri()?.contains("firebasestorage.googleapis.com")
@@ -294,10 +289,37 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
     private fun getPendingIntent(context: Context, action: Int): PendingIntent? {
         val intent = Intent(this, MyReceiver::class.java)
         intent.putExtra(ACTION_MUSIC_NAME, action)
-        return PendingIntent.getBroadcast(
-            context.applicationContext,
-            action, intent, PendingIntent.FLAG_UPDATE_CURRENT
-        )
+        return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            PendingIntent.getBroadcast(
+                context.applicationContext,
+                action, intent, PendingIntent.FLAG_UPDATE_CURRENT
+            )
+        } else {
+            PendingIntent.getBroadcast(
+                context.applicationContext,
+                action, intent, PendingIntent.FLAG_IMMUTABLE
+            )
+        }
+    }
+
+    private fun getPendingIntentClickNotification(): PendingIntent {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            val intent = Intent(this, MainActivity::class.java)
+            return PendingIntent.getActivity(
+                this,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT
+            )
+        } else {
+            val intent = Intent(this, MainActivity::class.java)
+            return PendingIntent.getActivity(
+                this,
+                0,
+                intent,
+                PendingIntent.FLAG_IMMUTABLE
+            )
+        }
     }
 
     private fun updateCurrentTime() {
@@ -328,8 +350,6 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
         bundle.putSerializable(KEY_CURRENT_TIME, currentTime)
         intent.putExtras(bundle)
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
-//        Log.e(MUSIC_SERVICE_TAG, "send current time success");
-//        Log.e(MUSIC_SERVICE_TAG, currentTime.toString());
     }
 
     private fun getIndexFromListSong(s: Song): Int {
@@ -372,7 +392,6 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
     }
 
     override fun onPrepared(mp: MediaPlayer?) {
-        Log.e(MUSIC_SERVICE_TAG, "onPrepared")
         mp!!.start()
         updateCurrentTime()
     }

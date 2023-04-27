@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.vuongvanduy.music.model.Song
 
-class AllSongsViewModel : ViewModel() {
+class OnlineSongsViewModel : ViewModel() {
 
     private val songs: MutableLiveData<MutableList<Song>> by lazy {
         MutableLiveData<MutableList<Song>>()

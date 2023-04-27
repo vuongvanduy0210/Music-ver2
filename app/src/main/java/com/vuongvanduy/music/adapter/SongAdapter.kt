@@ -10,9 +10,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.vuongvanduy.music.databinding.ItemSongBinding
 import com.vuongvanduy.music.model.Song
-import com.vuongvanduy.music.my_interface.IOnClickSongListener
+import com.vuongvanduy.music.my_interface.IClickSongListener
 
-class SongAdapter(private val iOnClickSongListener: IOnClickSongListener)
+class SongAdapter(private val iClickSongListener: IClickSongListener)
     : RecyclerView.Adapter<SongAdapter.SongViewHolder>(), Filterable {
 
     private var songs: List<Song>? = null
@@ -43,7 +43,6 @@ class SongAdapter(private val iOnClickSongListener: IOnClickSongListener)
         }
         val song = songs?.get(position)
         if (song != null) {
-//            holder.binding.imgMusicInList.setImageURI(Uri.parse(song.getImageUri()))
             holder.binding.apply {
                 Glide.with(holder.binding.root)
                     .load(Uri.parse(song.getImageUri()))
@@ -51,7 +50,7 @@ class SongAdapter(private val iOnClickSongListener: IOnClickSongListener)
                 tvMusicNameInList.text = song.getName()
                 tvSingerInList.text = song.getSinger()
                 layoutItem.setOnClickListener {
-                    iOnClickSongListener.onClickSong(song)
+                    iClickSongListener.onClickSong(song)
                 }
             }
         }

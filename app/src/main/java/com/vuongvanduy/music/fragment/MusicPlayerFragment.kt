@@ -9,6 +9,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -93,10 +94,12 @@ class MusicPlayerFragment : Fragment() {
 
     private fun setListenerToolbar() {
         binding.imgBack.setOnClickListener {
-            activity.supportFragmentManager.popBackStack()
-            activity.getBinding().apply {
-                mainUi.visibility = View.VISIBLE
-                appBar.visibility = View.VISIBLE
+            activity.apply {
+                supportFragmentManager.beginTransaction()
+                    .remove(this@MusicPlayerFragment).commit()
+                if (getBinding().layoutMusicPlayer.visibility == View.VISIBLE) {
+                    closeMusicPlayerView()
+                }
             }
         }
     }
@@ -133,11 +136,13 @@ class MusicPlayerFragment : Fragment() {
             when(it) {
                 ACTION_CLEAR -> {
                     activity.apply {
-                        supportFragmentManager.popBackStack()
-                        getBinding().apply {
-                            mainUi.visibility = View.VISIBLE
+                        if (getBinding().layoutMusicPlayer.visibility == View.VISIBLE) {
+                            closeMusicPlayerView()
                         }
                     }
+                }
+                ACTION_OPEN_MUSIC_PLAYER -> {
+                    setLayoutForMusicPlayer(viewModel.currentSong)
                 }
                 else -> setLayoutForMusicPlayer(viewModel.currentSong)
             }

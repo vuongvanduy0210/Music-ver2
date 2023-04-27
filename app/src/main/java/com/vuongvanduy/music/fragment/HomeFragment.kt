@@ -12,16 +12,19 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.os.postDelayed
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
-import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.bumptech.glide.Glide
 import com.vuongvanduy.music.R
 import com.vuongvanduy.music.activity.MainActivity
+import com.vuongvanduy.music.adapter.CategoryAdapter
 import com.vuongvanduy.music.adapter.PhotoViewPager2Adapter
 import com.vuongvanduy.music.databinding.FragmentHomeBinding
+import com.vuongvanduy.music.model.Song
+import com.vuongvanduy.music.my_interface.IClickCategoryListener
 import com.vuongvanduy.music.transformer.DepthPageTransformer
 import com.vuongvanduy.music.util.*
 import com.vuongvanduy.music.viewmodel.DataViewModel
@@ -69,7 +72,7 @@ class HomeFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
         binding = FragmentHomeBinding.inflate(inflater, container, false)
         activity = requireActivity() as MainActivity
@@ -88,16 +91,62 @@ class HomeFragment : Fragment() {
         setAutoSlideImage()
     }
 
+    private fun playSong(song: Song, categoryName: String) {
+        activity.apply {
+            viewModel.apply {
+                currentSong = song
+                if (categoryName == "Online Songs") {
+                    viewModel.getOnlineSongs().observe(activity) {
+                        sendListSongToService(it)
+                    }
+                } else if (categoryName == "Device Songs") {
+                    viewModel.getDeviceSongs().observe(activity) {
+                        sendListSongToService(it)
+                    }
+                }
+                sendDataToService(ACTION_START)
+            }
+            openMusicPlayer()
+            getBinding().miniPlayer.visibility = View.VISIBLE
+        }
+    }
+
+    private fun gotoViewAll(categoryName: String) {
+        if (categoryName == "Online Songs") {
+            activity.getBinding().viewPager2.currentItem = 1
+        } else if (categoryName == "Device Songs") {
+            activity.getBinding().viewPager2.currentItem = 3
+        }
+    }
+
     private fun sendDataToFragment() {
         val dataViewModel: DataViewModel = ViewModelProvider(activity)[DataViewModel::class.java]
         viewModel.apply {
             getOnlineSongs().observe(activity) {
                 dataViewModel.setListSongsOnline(it)
                 setListPhotos()
+                setRecyclerViewCategory()
             }
             getDeviceSongs().observe(activity) {
                 dataViewModel.setListSongsDevice(it)
+                setRecyclerViewCategory()
             }
+        }
+    }
+
+    private fun setRecyclerViewCategory() {
+        val categoryAdapter = CategoryAdapter(viewModel.getListCategories(), activity, object : IClickCategoryListener {
+            override fun clickButtonViewAll(categoryName: String) {
+                gotoViewAll(categoryName)
+            }
+
+            override fun onClickSong(song: Song, categoryName: String) {
+                playSong(song, categoryName)
+            }
+        })
+        binding.rcvCategory.apply {
+            layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
+            adapter = categoryAdapter
         }
     }
 

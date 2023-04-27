@@ -32,7 +32,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="?attr/actionBarSize"
                     android:background="@android:color/holo_blue_dark"
-                    app:popupTheme="@style/Theme.AppCompat.Light">
+                    app:popupTheme="@style/Theme.AppCompat.Light"
+                    app:contentInsetEnd="10dp">
 
                     <TextView
                         android:id="@+id/tool_bar_title"
@@ -50,6 +51,15 @@
 
             <FrameLayout
                 android:id="@+id/content_frame"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@id/app_bar"
+                android:visibility="gone">
+
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/layout_music_player"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_below="@id/app_bar"

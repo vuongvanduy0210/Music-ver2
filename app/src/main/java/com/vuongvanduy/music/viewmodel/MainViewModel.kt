@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.vuongvanduy.music.R
@@ -18,6 +19,14 @@ class MainViewModel : ViewModel() {
 
     @SuppressLint("StaticFieldLeak")
     lateinit var context: Context
+    private val onlineSongs: MutableLiveData<MutableList<Song>> by lazy {
+        MutableLiveData<MutableList<Song>>()
+    }
+
+    private val deviceSongs: MutableLiveData<MutableList<Song>> by lazy {
+        MutableLiveData<MutableList<Song>>()
+    }
+
     var currentSong: Song? = null
     private val isPlaying: MutableLiveData<Boolean> by lazy {
         MutableLiveData<Boolean>()
@@ -29,6 +38,17 @@ class MainViewModel : ViewModel() {
     fun setData(context: Context) {
         this.context = context
     }
+
+    fun setOnlineSongs(list: MutableList<Song>) {
+        onlineSongs.value = list
+    }
+
+    fun setDeviceSongs(list: MutableList<Song>) {
+        deviceSongs.value = list
+    }
+
+    fun getOnlineSongs(): LiveData<MutableList<Song>> = onlineSongs
+    fun getDeviceSongs(): LiveData<MutableList<Song>> = deviceSongs
 
     fun receiveDataFromReceiver(intent: Intent) {
         val bundle = intent.extras ?: return
@@ -46,12 +66,13 @@ class MainViewModel : ViewModel() {
     }
 
     @SuppressLint("CommitTransaction")
-    private fun openMusicPlayer() {
+    fun openMusicPlayer() {
         val musicPlayerFragment = MusicPlayerFragment()
         val fragmentActivity = context as FragmentActivity
+        fragmentActivity.supportFragmentManager.popBackStack()
         val transaction = fragmentActivity.supportFragmentManager.beginTransaction()
         transaction.setCustomAnimations(R.anim.slide_in_bottom, R.anim.slide_out_right)
-            .replace(R.id.content_frame, musicPlayerFragment)
+            .replace(R.id.layout_music_player, musicPlayerFragment)
             .addToBackStack("Backstack 1")
             .commit()
     }

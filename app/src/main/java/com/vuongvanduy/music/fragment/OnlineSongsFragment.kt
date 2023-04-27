@@ -22,38 +22,37 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.vuongvanduy.music.activity.MainActivity
 import com.vuongvanduy.music.adapter.SongAdapter
-import com.vuongvanduy.music.databinding.FragmentAllSongsBinding
+import com.vuongvanduy.music.databinding.FragmentOnlineSongsBinding
 import com.vuongvanduy.music.model.Song
-import com.vuongvanduy.music.my_interface.IOnClickSongListener
+import com.vuongvanduy.music.my_interface.IClickSongListener
 import com.vuongvanduy.music.util.*
-import com.vuongvanduy.music.viewmodel.AllSongsViewModel
+import com.vuongvanduy.music.viewmodel.OnlineSongsViewModel
 import com.vuongvanduy.music.viewmodel.DataViewModel
 
-class AllSongsFragment : Fragment() {
+class OnlineSongsFragment : Fragment() {
 
-    private lateinit var binding: FragmentAllSongsBinding
+    private lateinit var binding: FragmentOnlineSongsBinding
 
     private lateinit var activity: MainActivity
 
     private lateinit var songAdapter: SongAdapter
 
-    private lateinit var viewModel: AllSongsViewModel
+    private lateinit var viewModel: OnlineSongsViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        Log.e(ALL_SONGS_FRAGMENT_TAG, "onCreateView")
-        binding = FragmentAllSongsBinding.inflate(inflater, container, false)
+        Log.e(ONLINE_SONGS_FRAGMENT_TAG, "onCreateView")
+        binding = FragmentOnlineSongsBinding.inflate(inflater, container, false)
         activity = requireActivity() as MainActivity
-        viewModel = ViewModelProvider(activity)[AllSongsViewModel::class.java]
-//        viewModel.setData()
+        viewModel = ViewModelProvider(activity)[OnlineSongsViewModel::class.java]
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.e(ALL_SONGS_FRAGMENT_TAG, "onViewCreated")
+        Log.e(ONLINE_SONGS_FRAGMENT_TAG, "onViewCreated")
 
         getDataFromHomeFragment()
 
@@ -62,8 +61,6 @@ class AllSongsFragment : Fragment() {
         setOnClickBtSearchView()
 
         observerDisplayKeyboard()
-
-
     }
 
     private fun getDataFromHomeFragment() {
@@ -73,7 +70,7 @@ class AllSongsFragment : Fragment() {
 
     @SuppressLint("SetTextI18n")
     private fun setRecyclerViewSong() {
-        songAdapter = SongAdapter(object: IOnClickSongListener {
+        songAdapter = SongAdapter(object: IClickSongListener {
             override fun onClickSong(song: Song) {
                 playSong(song)
             }
@@ -112,15 +109,13 @@ class AllSongsFragment : Fragment() {
         activity.apply {
             viewModel.apply {
                 currentSong = song
-                this@AllSongsFragment.viewModel.getSongs().value?.let {
+                this@OnlineSongsFragment.viewModel.getSongs().value?.let {
                     sendListSongToService(it)
                     sendDataToService(ACTION_START)
                 }
             }
             openMusicPlayer()
-            getBinding().apply {
-                miniPlayer.visibility = View.VISIBLE
-            }
+            getBinding().miniPlayer.visibility = View.VISIBLE
         }
     }
 
@@ -169,7 +164,6 @@ class AllSongsFragment : Fragment() {
                 if (isKeyboardOpen) {
                     // Xử lý sự kiện mở bàn phím ảo
                     activity.getBinding().apply {
-
                         bottomNavigation.visibility = View.GONE
                     }
                 } else {
@@ -177,7 +171,6 @@ class AllSongsFragment : Fragment() {
                     Looper.myLooper()?.let {
                         Handler(it).postDelayed({
                             activity.getBinding().apply {
-
                                 if (bottomNavigation.visibility == View.GONE) {
                                     bottomNavigation.visibility = View.VISIBLE
                                 }
@@ -186,9 +179,7 @@ class AllSongsFragment : Fragment() {
                     }
                 }
             }
-            // Nếu chiều cao của bàn phím > 200dp, xem như bàn phím đang mở
         }
-        // Đăng ký ViewTreeObserver.OnGlobalLayoutListener với rootView
         val rootView = activity.window.decorView.rootView
         rootView.viewTreeObserver.addOnGlobalLayoutListener(keyboardVisibilityListener)
         return keyboardVisibilityListener
