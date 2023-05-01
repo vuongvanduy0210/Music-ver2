@@ -35,6 +35,8 @@ class MainViewModel : ViewModel() {
         MutableLiveData<Int>()
     }
 
+    private var themeMode: String? = null
+
     fun setData(context: Context) {
         this.context = context
     }
@@ -47,8 +49,14 @@ class MainViewModel : ViewModel() {
         deviceSongs.value = list
     }
 
+    fun setThemeMode(mode: String) {
+        this.themeMode = mode
+    }
+
     fun getOnlineSongs(): LiveData<MutableList<Song>> = onlineSongs
     fun getDeviceSongs(): LiveData<MutableList<Song>> = deviceSongs
+
+    fun getThemeMode() = themeMode
 
     fun receiveDataFromReceiver(intent: Intent) {
         val bundle = intent.extras ?: return

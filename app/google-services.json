@@ -1,33 +1,33 @@
 {
   "project_info": {
-    "project_number": "878720362043",
-    "project_id": "music-8f17d",
-    "storage_bucket": "music-8f17d.appspot.com"
+    "project_number": "771195999275",
+    "project_id": "music-98322",
+    "storage_bucket": "music-98322.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:878720362043:android:c2bb9751c3fdd5c8c95e1e",
+        "mobilesdk_app_id": "1:771195999275:android:6e082cbc26eaddc810866e",
         "android_client_info": {
           "package_name": "com.vuongvanduy.music"
         }
       },
       "oauth_client": [
         {
-          "client_id": "878720362043-78gsogqi129qklr38gf67s6c66u9175n.apps.googleusercontent.com",
+          "client_id": "771195999275-sk310uat44bh0gsos8le964r81vh7t1m.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCy65kjZ8AhL4Jf2h3-rJzHmJ4Cuj7txbc"
+          "current_key": "AIzaSyCnDuVIa5Rq8yhVaoS0DjbSd6OQ6WVsPfI"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "878720362043-78gsogqi129qklr38gf67s6c66u9175n.apps.googleusercontent.com",
+              "client_id": "771195999275-sk310uat44bh0gsos8le964r81vh7t1m.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

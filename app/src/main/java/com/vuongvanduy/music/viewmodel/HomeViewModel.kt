@@ -61,7 +61,7 @@ class HomeViewModel : ViewModel() {
         if (onlineSongs.value != null) {
             for (i in 0 until onlineSongs.value?.size!!) {
                 when(i) {
-                    2,6,8,11,12 -> {
+                    1,2,3,4,5 -> {
                         val photo = Photo(onlineSongs.value!![i].getImageUri())
                         list.add(photo)
                     }
@@ -83,7 +83,7 @@ class HomeViewModel : ViewModel() {
     private fun getAllSongsShow() {
         val list = mutableListOf<Song>()
         if (onlineSongs.value != null) {
-            for (i in 0 until onlineSongs.value!!.size - 10) {
+            for (i in 0 until onlineSongs.value!!.size - 5) {
                 val song = onlineSongs.value!![i]
                 list.add(song)
             }
@@ -146,7 +146,7 @@ class HomeViewModel : ViewModel() {
     }
 
     private fun getListOnlineSongs() {
-        val storageRef = Firebase.storage("gs://music-8f17d.appspot.com/").reference
+        val storageRef = Firebase.storage("gs://music-98322.appspot.com/").reference
         val musicRef = storageRef.child("music")
         musicRef.listAll().addOnSuccessListener {
             val items = it.items
@@ -189,7 +189,9 @@ class HomeViewModel : ViewModel() {
                     val songName = fileName.substringBefore("-")
                     val singer = fileName.substringAfter("-")
                     song = Song(songName, singer, songUri.toString(), imageUri.toString())
-                    list.add(song)
+                    if(!isSongExists(list, song)) {
+                        list.add(song)
+                    }
                 }
             }.addOnSuccessListener {
                 if (songUri != null && imageUri != null) {
@@ -213,7 +215,9 @@ class HomeViewModel : ViewModel() {
                     val songName = fileName.substringBefore("-")
                     val singer = fileName.substringAfter("-")
                     song = Song(songName, singer, songUri.toString(), imageUri.toString())
-                    list.add(song)
+                    if(!isSongExists(list, song)) {
+                        list.add(song)
+                    }
                 }
             }.addOnSuccessListener {
                 if (songUri != null && imageUri != null) {
@@ -224,5 +228,14 @@ class HomeViewModel : ViewModel() {
                 }
             }
         }
+    }
+
+    private fun isSongExists(songList: List<Song>, song: Song): Boolean {
+        for (s in songList) {
+            if (s.getResourceUri() == song.getResourceUri()) {
+                return true
+            }
+        }
+        return false
     }
 }

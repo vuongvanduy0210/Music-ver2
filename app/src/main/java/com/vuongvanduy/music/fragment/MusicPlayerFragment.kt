@@ -97,6 +97,7 @@ class MusicPlayerFragment : Fragment() {
             activity.apply {
                 supportFragmentManager.beginTransaction()
                     .remove(this@MusicPlayerFragment).commit()
+                supportFragmentManager.popBackStack()
                 if (getBinding().layoutMusicPlayer.visibility == View.VISIBLE) {
                     closeMusicPlayerView()
                 }

@@ -5,6 +5,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
 import com.vuongvanduy.music.R
+import com.vuongvanduy.music.SharedPreferences.DataLocalManager
 import com.vuongvanduy.music.util.CHANNEL_ID
 
 class MyApplication : Application() {
@@ -12,6 +13,11 @@ class MyApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
+        createDataLocalManager()
+    }
+
+    private fun createDataLocalManager() {
+        DataLocalManager.init(applicationContext)
     }
 
     private fun createNotificationChannel() {

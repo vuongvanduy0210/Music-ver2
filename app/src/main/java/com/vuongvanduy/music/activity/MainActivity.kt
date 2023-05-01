@@ -9,6 +9,7 @@ import android.content.IntentFilter
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -26,6 +27,7 @@ import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem
 import com.bumptech.glide.Glide
 import com.google.android.material.navigation.NavigationView
 import com.vuongvanduy.music.R
+import com.vuongvanduy.music.SharedPreferences.DataLocalManager
 import com.vuongvanduy.music.adapter.FragmentViewPager2Adapter
 import com.vuongvanduy.music.databinding.ActivityMainBinding
 import com.vuongvanduy.music.fragment.*
@@ -45,7 +47,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     lateinit var viewModel: MainViewModel
 
-    private lateinit var selectedMenuItem: MenuItem
+    private var selectedMenuItem: MenuItem? = null
 
     private val serviceReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -56,6 +58,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.e(MAIN_ACTIVITY_TAG, "onCreate")
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -133,7 +136,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 ACTION_NEXT -> viewModel.currentSong?.let { setLayoutMiniPlayer(it) }
                 ACTION_PREVIOUS -> viewModel.currentSong?.let { setLayoutMiniPlayer(it) }
                 ACTION_CLEAR -> {
-
                     viewModel.getPlaying().value = false
                     binding.apply {
                         miniPlayer.visibility = View.GONE
@@ -147,8 +149,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     binding.miniPlayer.visibility = View.VISIBLE
                 }
                 ACTION_OPEN_MUSIC_PLAYER -> {
+                    if (viewModel.getPlaying().value == true
+                        && binding.contentFrame.visibility == View.VISIBLE) {
+                            return@observe
+                    }
                     openMusicPlayerView()
+                    Log.e(MAIN_ACTIVITY_TAG, "openMusicPlayerView")
                 }
+                else -> {}
             }
         }
     }
@@ -191,8 +199,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                 sendListSongToService(list)
                                 sendDataToService(ACTION_START)
                             }
-                            openMusicPlayer()
                             binding.miniPlayer.visibility = View.VISIBLE
+                            openMusicPlayer()
                         }
                     }
                 }
@@ -204,8 +212,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                 sendListSongToService(list)
                                 sendDataToService(ACTION_START)
                             }
-                            openMusicPlayer()
                             binding.miniPlayer.visibility = View.VISIBLE
+                            openMusicPlayer()
                         }
                     }
                 }
@@ -250,6 +258,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.nav_feedback ->
                 replaceFragment(FeedbackFragment(), FRAGMENT_FEEDBACK, TITLE_FEEDBACK)
         }
+        selectedMenuItem!!.isChecked = true
         binding.drawerLayout.closeDrawer(GravityCompat.START)
         return true
     }
@@ -329,22 +338,33 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
+    @SuppressLint("ResourceType")
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         binding.apply {
             if (drawerLayout.isDrawerOpen(GravityCompat.START)) { // khi drawer đang mở
+                Log.e(MAIN_ACTIVITY_TAG, "Close Drawer")
                 drawerLayout.closeDrawer(GravityCompat.START)
             } else if (binding.layoutMusicPlayer.visibility == View.VISIBLE) { // khi music player đang mở
+                Log.e(MAIN_ACTIVITY_TAG, "Close Music Player")
+                if (binding.mainUi.visibility == View.GONE) {
+                    Log.e(MAIN_ACTIVITY_TAG, "Main UI Gone")
+                }
                 closeMusicPlayerView()
                 val fragment = supportFragmentManager.findFragmentById(R.id.layout_music_player)
                 if (fragment != null) {
                     supportFragmentManager.beginTransaction().remove(fragment).commit()
+                    supportFragmentManager.popBackStack()
                 }
             } else if (mainUi.visibility == View.GONE && contentFrame.visibility == View.VISIBLE) {
                 // khi main đang ẩn và content frame đang mở
+                Log.e(MAIN_ACTIVITY_TAG, "Close content frame")
                 currentFragment = 0
                 setTitleForToolbar(0, 1)
-                selectedMenuItem.isChecked = false
+                if (selectedMenuItem == null) {
+                    selectedMenuItem = binding.navigationView.menu.findItem(R.id.nav_appearance)
+                }
+                selectedMenuItem!!.isChecked = false
                 closeNavigation()
                 if (currentFragmentViewPager2Adapter != FRAGMENT_HOME) {
                     customButton.visibility = View.VISIBLE
@@ -373,7 +393,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
-    fun openMusicPlayerView() {
+    private fun openMusicPlayerView() {
         binding.apply {
             layoutMusicPlayer.visibility = View.VISIBLE
             mainUi.visibility = View.GONE
@@ -383,6 +403,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     fun closeMusicPlayerView() {
         binding.apply {
+            Log.e(MAIN_ACTIVITY_TAG, "closeMusicPlayerView")
             layoutMusicPlayer.visibility = View.GONE
             mainUi.visibility = View.VISIBLE
             appBar.visibility = View.VISIBLE
@@ -390,14 +411,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     fun openNavigation() {
+        Log.e(MAIN_ACTIVITY_TAG, "openNavigation")
         binding.apply {
             contentFrame.visibility = View.VISIBLE
             mainUi.visibility = View.GONE
             appBar.visibility = View.VISIBLE
+            layoutMusicPlayer.visibility = View.GONE
         }
     }
 
-    fun closeNavigation() {
+    private fun closeNavigation() {
+        Log.e(MAIN_ACTIVITY_TAG, "closeNavigation")
         binding.apply {
             contentFrame.visibility = View.GONE
             mainUi.visibility = View.VISIBLE
@@ -422,6 +446,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onDestroy() {
         super.onDestroy()
+        Log.e(MAIN_ACTIVITY_TAG, "onDestroy")
         LocalBroadcastManager.getInstance(this).unregisterReceiver(serviceReceiver)
+        viewModel.getThemeMode()?.let { DataLocalManager.putStringThemeMode(it) }
+    }
+
+    override fun recreate() {
+        Log.e(MAIN_ACTIVITY_TAG, "recreate")
+        super.recreate()
     }
 }

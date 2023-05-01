@@ -42,6 +42,9 @@ const val REQUEST_PERMISSION_READ_EXTERNAL = 1000
 const val REQUEST_CODE_NETWORK_STATE = 100
 
 const val KEY_THEME_MODE = "KEY_THEME_MODE"
+const val SYSTEM_MODE = "Mirror system preferences"
+const val LIGHT_MODE = "Light"
+const val DARK_MODE = "Dark"
 
 const val MY_SHARED_PREFERENCES = "MY_SHARED_PREFERENCES"
 
