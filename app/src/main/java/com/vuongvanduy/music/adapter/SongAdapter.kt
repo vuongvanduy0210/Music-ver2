@@ -12,8 +12,8 @@ import com.vuongvanduy.music.databinding.ItemSongBinding
 import com.vuongvanduy.music.model.Song
 import com.vuongvanduy.music.my_interface.IClickSongListener
 
-class SongAdapter(private val iClickSongListener: IClickSongListener)
-    : RecyclerView.Adapter<SongAdapter.SongViewHolder>(), Filterable {
+class SongAdapter(private val iClickSongListener: IClickSongListener) :
+    RecyclerView.Adapter<SongAdapter.SongViewHolder>(), Filterable {
 
     private var songs: List<Song>? = null
     private var listSongsOld: List<Song>? = null
@@ -87,7 +87,8 @@ class SongAdapter(private val iClickSongListener: IClickSongListener)
         }
     }
 
-    inner class SongViewHolder(val binding: ItemSongBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class SongViewHolder(val binding: ItemSongBinding) :
+        RecyclerView.ViewHolder(binding.root) {
     }
 
 }

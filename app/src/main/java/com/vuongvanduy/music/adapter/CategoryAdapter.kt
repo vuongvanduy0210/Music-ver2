@@ -11,10 +11,11 @@ import com.vuongvanduy.music.model.Song
 import com.vuongvanduy.music.my_interface.IClickCategoryListener
 import com.vuongvanduy.music.my_interface.IClickItemSongCategoryListener
 
-class CategoryAdapter(private val listCategories: MutableList<Category>,
-                      private val context: Context,
-                      private val iClickCategoryListener: IClickCategoryListener)
-    : RecyclerView.Adapter<CategoryAdapter.CategoryViewHolder>() {
+class CategoryAdapter(
+    private val listCategories: MutableList<Category>,
+    private val context: Context,
+    private val iClickCategoryListener: IClickCategoryListener
+) : RecyclerView.Adapter<CategoryAdapter.CategoryViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryViewHolder {
         val binding = ItemCategoryBinding
@@ -33,11 +34,11 @@ class CategoryAdapter(private val listCategories: MutableList<Category>,
             tvNameCategory.text = category.getName()
 
             val songCategoryAdapter = SongCategoryAdapter(category.getSongs(),
-                object : IClickItemSongCategoryListener{
-                override fun onClickItemSong(song: Song) {
-                    iClickCategoryListener.onClickSong(song, category.getName())
-                }
-            })
+                object : IClickItemSongCategoryListener {
+                    override fun onClickItemSong(song: Song) {
+                        iClickCategoryListener.onClickSong(song, category.getName())
+                    }
+                })
 
             val manger = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
             holder.binding.rcvSong.apply {
@@ -53,6 +54,6 @@ class CategoryAdapter(private val listCategories: MutableList<Category>,
         }
     }
 
-    inner class CategoryViewHolder(val binding: ItemCategoryBinding)
-        : RecyclerView.ViewHolder(binding.root) {}
+    inner class CategoryViewHolder(val binding: ItemCategoryBinding) :
+        RecyclerView.ViewHolder(binding.root) {}
 }

@@ -46,7 +46,6 @@ class MusicPlayerViewModel : ViewModel() {
             val bundle = intent.extras
             if (bundle != null) {
                 currentTime =bundle.getInt(KEY_CURRENT_TIME)
-//                Log.e(MUSIC_PLAYER_FRAGMENT_TAG, currentTime.toString())
             }
         }
     }

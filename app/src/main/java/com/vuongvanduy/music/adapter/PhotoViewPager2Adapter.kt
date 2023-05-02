@@ -38,7 +38,7 @@ class PhotoViewPager2Adapter
         Glide.with(context).load(photo.getImageUri()).into(holder.binding.imgPhoto)
     }
 
-    inner class PhotoViewHolder(val binding: ItemPhotoBinding)
-        : RecyclerView.ViewHolder(binding.root) {
+    inner class PhotoViewHolder(val binding: ItemPhotoBinding) :
+        RecyclerView.ViewHolder(binding.root) {
     }
 }

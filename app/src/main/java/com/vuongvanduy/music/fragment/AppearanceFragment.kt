@@ -8,10 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.view.get
-import androidx.fragment.app.FragmentActivity
 import com.vuongvanduy.music.R
-import com.vuongvanduy.music.SharedPreferences.DataLocalManager
 import com.vuongvanduy.music.activity.MainActivity
 import com.vuongvanduy.music.adapter.ThemeModeAdapter
 import com.vuongvanduy.music.databinding.FragmentAppearanceBinding
@@ -37,7 +34,8 @@ class AppearanceFragment : Fragment() {
         // Inflate the layout for this fragment
         binding = FragmentAppearanceBinding.inflate(inflater, container, false)
         activity = requireActivity() as MainActivity
-        themeModeAdapter = ThemeModeAdapter(requireActivity(), R.layout.item_selected, getListThemeMode())
+        themeModeAdapter =
+            ThemeModeAdapter(requireActivity(), R.layout.item_selected, getListThemeMode())
         return binding.root
     }
 
@@ -49,13 +47,17 @@ class AppearanceFragment : Fragment() {
     }
 
     private fun setSelectionSpinner() {
-        when(AppCompatDelegate.getDefaultNightMode()) {
+        when (AppCompatDelegate.getDefaultNightMode()) {
             AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM ->
                 binding.themeSpinner.setSelection(0)
+
             AppCompatDelegate.MODE_NIGHT_NO ->
                 binding.themeSpinner.setSelection(1)
+
             AppCompatDelegate.MODE_NIGHT_YES ->
                 binding.themeSpinner.setSelection(2)
+
+            else -> {}
         }
     }
 
@@ -72,6 +74,7 @@ class AppearanceFragment : Fragment() {
                 ) {
                     changeThemeMode(position)
                 }
+
                 override fun onNothingSelected(parent: AdapterView<*>?) {}
             }
         }
@@ -79,15 +82,17 @@ class AppearanceFragment : Fragment() {
 
     private fun changeThemeMode(position: Int) {
 //        activity.closeMusicPlayerView()
-        when(position) {
+        when (position) {
             0 -> {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
                 activity.viewModel.setThemeMode(SYSTEM_MODE)
             }
+
             1 -> {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
                 activity.viewModel.setThemeMode(LIGHT_MODE)
             }
+
             2 -> {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
                 activity.viewModel.setThemeMode(DARK_MODE)

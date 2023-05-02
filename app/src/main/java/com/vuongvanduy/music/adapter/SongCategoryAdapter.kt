@@ -10,9 +10,10 @@ import com.vuongvanduy.music.databinding.ItemSongInCategoryBinding
 import com.vuongvanduy.music.model.Song
 import com.vuongvanduy.music.my_interface.IClickItemSongCategoryListener
 
-class SongCategoryAdapter(private var listSongShow: MutableList<Song>,
-                          private val listener: IClickItemSongCategoryListener)
-    : RecyclerView.Adapter<SongCategoryAdapter.SongCategoryViewHolder>() {
+class SongCategoryAdapter(
+    private var listSongShow: MutableList<Song>,
+    private val listener: IClickItemSongCategoryListener
+) : RecyclerView.Adapter<SongCategoryAdapter.SongCategoryViewHolder>() {
 
     private var listSongPlay: MutableList<Song>? = null
 
@@ -46,6 +47,6 @@ class SongCategoryAdapter(private var listSongShow: MutableList<Song>,
         }
     }
 
-    inner class SongCategoryViewHolder(val binding: ItemSongInCategoryBinding)
-        : RecyclerView.ViewHolder(binding.root) {}
+    inner class SongCategoryViewHolder(val binding: ItemSongInCategoryBinding) :
+        RecyclerView.ViewHolder(binding.root) {}
 }

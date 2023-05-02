@@ -136,15 +136,18 @@ class HomeFragment : Fragment() {
     }
 
     private fun setRecyclerViewCategory() {
-        val categoryAdapter = CategoryAdapter(viewModel.getListCategories(), activity, object : IClickCategoryListener {
-            override fun clickButtonViewAll(categoryName: String) {
-                gotoViewAll(categoryName)
-            }
+        val categoryAdapter = CategoryAdapter(
+            viewModel.getListCategories(),
+            activity,
+            object : IClickCategoryListener {
+                override fun clickButtonViewAll(categoryName: String) {
+                    gotoViewAll(categoryName)
+                }
 
-            override fun onClickSong(song: Song, categoryName: String) {
-                playSong(song, categoryName)
-            }
-        })
+                override fun onClickSong(song: Song, categoryName: String) {
+                    playSong(song, categoryName)
+                }
+            })
         binding.rcvCategory.apply {
             layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
             adapter = categoryAdapter

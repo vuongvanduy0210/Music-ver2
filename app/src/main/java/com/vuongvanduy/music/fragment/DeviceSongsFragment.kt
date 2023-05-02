@@ -22,7 +22,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.vuongvanduy.music.activity.MainActivity
 import com.vuongvanduy.music.adapter.SongAdapter
 import com.vuongvanduy.music.databinding.FragmentDeviceSongsBinding
-import com.vuongvanduy.music.databinding.FragmentOnlineSongsBinding
 import com.vuongvanduy.music.model.Song
 import com.vuongvanduy.music.my_interface.IClickSongListener
 import com.vuongvanduy.music.util.*
@@ -63,7 +62,6 @@ class DeviceSongsFragment : Fragment() {
 
     private fun getDataFromHomeFragment() {
         val dataViewModel: DataViewModel = ViewModelProvider(activity)[DataViewModel::class.java]
-//        dataViewModel.getListSongsDevice().value?.let { viewModel.setData(it) }
         dataViewModel.getListSongsDevice().observe(activity) {
             if (it != null) {
                 viewModel.setData(it)

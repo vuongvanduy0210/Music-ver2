@@ -1,4 +1,4 @@
-package com.vuongvanduy.music.SharedPreferences
+package com.vuongvanduy.music.shared_preferences
 
 import android.annotation.SuppressLint
 import android.content.Context

@@ -9,7 +9,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -37,12 +36,14 @@ class MusicPlayerFragment : Fragment() {
     private lateinit var viewModel: MusicPlayerViewModel
 
     private val handler = Looper.myLooper()
+
     inner class UpdateSeekBar : Runnable {
         override fun run() {
             val currentTime = viewModel.currentTime
             binding.seekBarMusic.progress = currentTime
             val minutes: Int = currentTime / 1000 / 60
             val seconds: Int = currentTime / 1000 % 60
+
             @SuppressLint("DefaultLocale")
             val str = String.format("%02d:%02d", minutes, seconds)
             binding.tvCurrentTime.text = str
@@ -134,7 +135,7 @@ class MusicPlayerFragment : Fragment() {
 
     private fun observerAction() {
         viewModel.action.observe(activity) {
-            when(it) {
+            when (it) {
                 ACTION_CLEAR -> {
                     activity.apply {
                         if (getBinding().layoutMusicPlayer.visibility == View.VISIBLE) {
@@ -142,9 +143,11 @@ class MusicPlayerFragment : Fragment() {
                         }
                     }
                 }
+
                 ACTION_OPEN_MUSIC_PLAYER -> {
                     setLayoutForMusicPlayer(viewModel.currentSong)
                 }
+
                 else -> setLayoutForMusicPlayer(viewModel.currentSong)
             }
         }
@@ -177,6 +180,7 @@ class MusicPlayerFragment : Fragment() {
                 binding.seekBarMusic.max = final
                 val minutes: Int = final / 1000 / 60
                 val seconds: Int = final / 1000 % 60
+
                 @SuppressLint("DefaultLocale")
                 val str = String.format("%02d:%02d", minutes, seconds)
                 binding.tvFinalTime.text = str
@@ -201,6 +205,7 @@ class MusicPlayerFragment : Fragment() {
                         }
                     }
                 }
+
                 override fun onStartTrackingTouch(seekBar: SeekBar?) {}
 
                 override fun onStopTrackingTouch(seekBar: SeekBar?) {}

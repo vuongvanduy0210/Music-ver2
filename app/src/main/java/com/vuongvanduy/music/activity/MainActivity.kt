@@ -9,7 +9,6 @@ import android.content.IntentFilter
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
-import android.os.Handler
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -27,7 +26,7 @@ import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem
 import com.bumptech.glide.Glide
 import com.google.android.material.navigation.NavigationView
 import com.vuongvanduy.music.R
-import com.vuongvanduy.music.SharedPreferences.DataLocalManager
+import com.vuongvanduy.music.shared_preferences.DataLocalManager
 import com.vuongvanduy.music.adapter.FragmentViewPager2Adapter
 import com.vuongvanduy.music.databinding.ActivityMainBinding
 import com.vuongvanduy.music.fragment.*
@@ -131,7 +130,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         }
         viewModel.actionMusic.observe(this) { value ->
-            when(value) {
+            when (value) {
                 ACTION_START -> viewModel.currentSong?.let { setLayoutMiniPlayer(it) }
                 ACTION_NEXT -> viewModel.currentSong?.let { setLayoutMiniPlayer(it) }
                 ACTION_PREVIOUS -> viewModel.currentSong?.let { setLayoutMiniPlayer(it) }
@@ -144,18 +143,22 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         }
                     }
                 }
+
                 ACTION_RELOAD_DATA -> {
                     viewModel.currentSong?.let { setLayoutMiniPlayer(it) }
                     binding.miniPlayer.visibility = View.VISIBLE
                 }
+
                 ACTION_OPEN_MUSIC_PLAYER -> {
                     if (viewModel.getPlaying().value == true
-                        && binding.contentFrame.visibility == View.VISIBLE) {
-                            return@observe
+                        && binding.contentFrame.visibility == View.VISIBLE
+                    ) {
+                        return@observe
                     }
                     openMusicPlayerView()
                     Log.e(MAIN_ACTIVITY_TAG, "openMusicPlayerView")
                 }
+
                 else -> {}
             }
         }
@@ -165,13 +168,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         getDataFromHomeFragment()
         binding.toolBar.title = ""
         setSupportActionBar(binding.toolBar)
-        val toggle = ActionBarDrawerToggle(this, binding.drawerLayout, binding.toolBar,
-            R.string.nav_drawer_open, R.string.nav_drawer_close)
+        val toggle = ActionBarDrawerToggle(
+            this, binding.drawerLayout, binding.toolBar,
+            R.string.nav_drawer_open, R.string.nav_drawer_close
+        )
         binding.drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
 
-        binding.drawerLayout.addDrawerListener(object: DrawerLayout.DrawerListener {
-            override fun onDrawerSlide(drawerView: View, slideOffset: Float) { hideKeyboard() }
+        binding.drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {
+            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
+                hideKeyboard()
+            }
+
             override fun onDrawerOpened(drawerView: View) {}
             override fun onDrawerClosed(drawerView: View) {}
             override fun onDrawerStateChanged(newState: Int) {}
@@ -190,7 +198,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         // click button play all
         customButton.setOnClickListener {
-            when(currentFragmentViewPager2Adapter) {
+            when (currentFragmentViewPager2Adapter) {
                 FRAGMENT_ONLINE_SONGS -> {
                     viewModel.getOnlineSongs().observe(this) { list ->
                         if (list != null) {
@@ -204,6 +212,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         }
                     }
                 }
+
                 FRAGMENT_DEVICE_SONGS -> {
                     viewModel.getDeviceSongs().observe(this) { list ->
                         if (list != null) {
@@ -242,7 +251,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         selectedMenuItem = item
         customButton.visibility = View.GONE
 
-        when(item.itemId) {
+        when (item.itemId) {
             R.id.nav_account ->
                 replaceFragment(AccountFragment(), FRAGMENT_ACCOUNT, TITLE_ACCOUNT)
 
@@ -282,7 +291,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             isUserInputEnabled = false
             setPageTransformer(ZoomOutPageTransformer())
 
-            registerOnPageChangeCallback(object: OnPageChangeCallback() {
+            registerOnPageChangeCallback(object : OnPageChangeCallback() {
                 @SuppressLint("LongLogTag")
                 override fun onPageSelected(position: Int) {
                     super.onPageSelected(position)
@@ -290,16 +299,19 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     currentFragmentViewPager2Adapter = position + 1
                     setTitleForToolbar(position, 2)
                     customButton.apply {
-                        when(currentFragmentViewPager2Adapter) {
+                        when (currentFragmentViewPager2Adapter) {
                             FRAGMENT_HOME -> {
                                 visibility = View.GONE
                             }
+
                             FRAGMENT_ONLINE_SONGS -> {
                                 visibility = View.VISIBLE
                             }
+
                             FRAGMENT_FAVOURITE_SONGS -> {
                                 visibility = View.VISIBLE
                             }
+
                             FRAGMENT_DEVICE_SONGS -> {
                                 visibility = View.VISIBLE
                             }
@@ -343,13 +355,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onBackPressed() {
         binding.apply {
             if (drawerLayout.isDrawerOpen(GravityCompat.START)) { // khi drawer đang mở
-                Log.e(MAIN_ACTIVITY_TAG, "Close Drawer")
                 drawerLayout.closeDrawer(GravityCompat.START)
             } else if (binding.layoutMusicPlayer.visibility == View.VISIBLE) { // khi music player đang mở
-                Log.e(MAIN_ACTIVITY_TAG, "Close Music Player")
-                if (binding.mainUi.visibility == View.GONE) {
-                    Log.e(MAIN_ACTIVITY_TAG, "Main UI Gone")
-                }
                 closeMusicPlayerView()
                 val fragment = supportFragmentManager.findFragmentById(R.id.layout_music_player)
                 if (fragment != null) {
@@ -358,7 +365,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
             } else if (mainUi.visibility == View.GONE && contentFrame.visibility == View.VISIBLE) {
                 // khi main đang ẩn và content frame đang mở
-                Log.e(MAIN_ACTIVITY_TAG, "Close content frame")
                 currentFragment = 0
                 setTitleForToolbar(0, 1)
                 if (selectedMenuItem == null) {
@@ -377,14 +383,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private fun setTitleForToolbar(position: Int, mode: Int) {
         binding.toolBarTitle.text = if (mode == 1) {
-            when(currentFragmentViewPager2Adapter) {
+            when (currentFragmentViewPager2Adapter) {
                 FRAGMENT_HOME -> TITLE_HOME
                 FRAGMENT_ONLINE_SONGS -> TITLE_ONLINE_SONGS
                 FRAGMENT_FAVOURITE_SONGS -> TITLE_FAVOURITE_SONGS
                 else -> TITLE_DEVICE_SONGS
             }
         } else {
-            when(position) {
+            when (position) {
                 0 -> TITLE_HOME
                 1 -> TITLE_ONLINE_SONGS
                 2 -> TITLE_FAVOURITE_SONGS

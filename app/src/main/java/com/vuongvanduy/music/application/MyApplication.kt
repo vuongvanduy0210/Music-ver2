@@ -5,7 +5,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
 import com.vuongvanduy.music.R
-import com.vuongvanduy.music.SharedPreferences.DataLocalManager
+import com.vuongvanduy.music.shared_preferences.DataLocalManager
 import com.vuongvanduy.music.util.CHANNEL_ID
 
 class MyApplication : Application() {
