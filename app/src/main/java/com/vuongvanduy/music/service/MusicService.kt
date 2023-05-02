@@ -289,7 +289,7 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
     private fun getPendingIntent(context: Context, action: Int): PendingIntent? {
         val intent = Intent(this, MyReceiver::class.java)
         intent.putExtra(ACTION_MUSIC_NAME, action)
-        return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+        return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
             PendingIntent.getBroadcast(
                 context.applicationContext,
                 action, intent, PendingIntent.FLAG_UPDATE_CURRENT
@@ -303,7 +303,7 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
     }
 
     private fun getPendingIntentClickNotification(): PendingIntent {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
             val intent = Intent(this, MainActivity::class.java)
             return PendingIntent.getActivity(
                 this,

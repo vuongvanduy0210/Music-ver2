@@ -65,7 +65,12 @@ class OnlineSongsFragment : Fragment() {
 
     private fun getDataFromHomeFragment() {
         val dataViewModel: DataViewModel = ViewModelProvider(activity)[DataViewModel::class.java]
-        dataViewModel.getListSongsOnline().value?.let { viewModel.setData(it) }
+//        dataViewModel.getListSongsOnline().value?.let { viewModel.setData(it) }
+        dataViewModel.getListSongsOnline().observe(activity) {
+            if (it != null) {
+                viewModel.setData(it)
+            }
+        }
     }
 
     @SuppressLint("SetTextI18n")

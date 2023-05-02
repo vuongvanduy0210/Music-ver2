@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.vuongvanduy.music.activity.MainActivity
 import com.vuongvanduy.music.adapter.SongAdapter
+import com.vuongvanduy.music.databinding.FragmentDeviceSongsBinding
 import com.vuongvanduy.music.databinding.FragmentOnlineSongsBinding
 import com.vuongvanduy.music.model.Song
 import com.vuongvanduy.music.my_interface.IClickSongListener
@@ -30,7 +31,7 @@ import com.vuongvanduy.music.viewmodel.DeviceSongsViewModel
 
 class DeviceSongsFragment : Fragment() {
 
-    private lateinit var binding: FragmentOnlineSongsBinding
+    private lateinit var binding: FragmentDeviceSongsBinding
 
     private lateinit var activity: MainActivity
 
@@ -42,7 +43,7 @@ class DeviceSongsFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentOnlineSongsBinding.inflate(inflater, container, false)
+        binding = FragmentDeviceSongsBinding.inflate(inflater, container, false)
         activity = requireActivity() as MainActivity
         viewModel = ViewModelProvider(activity)[DeviceSongsViewModel::class.java]
         return binding.root
@@ -62,7 +63,12 @@ class DeviceSongsFragment : Fragment() {
 
     private fun getDataFromHomeFragment() {
         val dataViewModel: DataViewModel = ViewModelProvider(activity)[DataViewModel::class.java]
-        dataViewModel.getListSongsDevice().value?.let { viewModel.setData(it) }
+//        dataViewModel.getListSongsDevice().value?.let { viewModel.setData(it) }
+        dataViewModel.getListSongsDevice().observe(activity) {
+            if (it != null) {
+                viewModel.setData(it)
+            }
+        }
     }
 
     @SuppressLint("SetTextI18n")

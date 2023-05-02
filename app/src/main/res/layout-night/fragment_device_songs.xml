@@ -4,7 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".fragment.DeviceSongsFragment"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@color/blue">
 
     <!-- TODO: Update blank fragment layout -->
     <RelativeLayout
@@ -63,6 +64,8 @@
         android:text="@string/title_home"
         android:textSize="17sp"
         android:gravity="center"
-        android:visibility="gone"/>
+        android:visibility="gone"
+        android:background="@color/blue"
+        android:textColor="@color/white"/>
 
 </LinearLayout>

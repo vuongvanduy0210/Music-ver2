@@ -46,6 +46,15 @@
 
     </RelativeLayout>
 
+    <TextView
+        android:id="@+id/tv_noti_list_song"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/title_home"
+        android:textSize="17sp"
+        android:gravity="center"
+        android:visibility="gone"/>
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -57,14 +66,5 @@
             android:background="@color/white" />
 
     </RelativeLayout>
-
-    <TextView
-        android:id="@+id/tv_noti_list_song"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/title_home"
-        android:textSize="17sp"
-        android:gravity="center"
-        android:visibility="gone"/>
 
 </LinearLayout>

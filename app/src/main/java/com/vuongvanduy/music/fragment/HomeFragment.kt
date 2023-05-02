@@ -129,6 +129,7 @@ class HomeFragment : Fragment() {
             }
             getDeviceSongs().observe(activity) {
                 dataViewModel.setListSongsDevice(it)
+                setListPhotos()
                 setRecyclerViewCategory()
             }
         }
@@ -153,19 +154,24 @@ class HomeFragment : Fragment() {
     private fun setAutoSlideImage() {
         Glide.with(activity).load(R.drawable.img_home).into(binding.imgBackGround)
         viewModel.getPhotos().observe(activity) {
-            photosAdapter = PhotoViewPager2Adapter()
-            photosAdapter.setData(it, activity)
-            binding.slideImage.apply {
-                adapter = photosAdapter
-                setPageTransformer(DepthPageTransformer())
-                binding.circleIndicator.setViewPager(this)
-                registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-                    override fun onPageSelected(position: Int) {
-                        super.onPageSelected(position)
-                        myHandler.removeCallbacks(runnable)
-                        myHandler.postDelayed(runnable, 2500)
-                    }
-                })
+            if (it != null && it.isNotEmpty()) {
+                binding.slideImage.visibility = View.VISIBLE
+                photosAdapter = PhotoViewPager2Adapter()
+                photosAdapter.setData(it, activity)
+                binding.slideImage.apply {
+                    adapter = photosAdapter
+                    setPageTransformer(DepthPageTransformer())
+                    binding.circleIndicator.setViewPager(this)
+                    registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+                        override fun onPageSelected(position: Int) {
+                            super.onPageSelected(position)
+                            myHandler.removeCallbacks(runnable)
+                            myHandler.postDelayed(runnable, 2500)
+                        }
+                    })
+                }
+            } else {
+                binding.slideImage.visibility = View.GONE
             }
         }
     }

@@ -68,6 +68,12 @@ class HomeViewModel : ViewModel() {
                 }
             }
             photos.value = list
+        } else if (deviceSongs.value != null) {
+            for (i in 0 until deviceSongs.value?.size!!) {
+                val photo = Photo(deviceSongs.value!![i].getImageUri())
+                list.add(photo)
+            }
+            photos.value = list
         }
     }
 
