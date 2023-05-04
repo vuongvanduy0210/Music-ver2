@@ -5,14 +5,14 @@
     android:layout_height="match_parent"
     tools:context=".fragment.DeviceSongsFragment"
     android:orientation="vertical"
-    android:background="@color/blue">
+    android:background="@color/black">
 
     <!-- TODO: Update blank fragment layout -->
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:background="@color/blue">
+        android:background="@color/black">
 
         <ImageView
             android:id="@+id/img_search"
@@ -55,7 +55,7 @@
         android:id="@+id/rcv_list_songs"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/blue"/>
+        android:background="@color/black"/>
 
     <TextView
         android:id="@+id/tv_noti_list_song"
@@ -65,7 +65,7 @@
         android:textSize="17sp"
         android:gravity="center"
         android:visibility="gone"
-        android:background="@color/blue"
+        android:background="@color/black"
         android:textColor="@color/white"/>
 
 </LinearLayout>

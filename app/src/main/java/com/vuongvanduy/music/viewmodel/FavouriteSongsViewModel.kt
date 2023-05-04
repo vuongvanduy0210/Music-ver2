@@ -1,6 +1,6 @@
 package com.vuongvanduy.music.viewmodel
 
-import androidx.databinding.BaseObservable
+import androidx.lifecycle.ViewModel
 
-class FavouriteSongsViewModel : BaseObservable() {
+class FavouriteSongsViewModel : ViewModel() {
 }

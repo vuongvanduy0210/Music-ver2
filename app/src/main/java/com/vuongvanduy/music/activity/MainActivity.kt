@@ -25,10 +25,12 @@ import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem
 import com.bumptech.glide.Glide
 import com.google.android.material.navigation.NavigationView
+import com.google.firebase.auth.FirebaseAuth
 import com.vuongvanduy.music.R
 import com.vuongvanduy.music.shared_preferences.DataLocalManager
 import com.vuongvanduy.music.adapter.FragmentViewPager2Adapter
 import com.vuongvanduy.music.databinding.ActivityMainBinding
+import com.vuongvanduy.music.databinding.LayoutHeaderNavigationBinding
 import com.vuongvanduy.music.fragment.*
 import com.vuongvanduy.music.model.Song
 import com.vuongvanduy.music.transformer.ZoomOutPageTransformer
@@ -39,9 +41,10 @@ import com.vuongvanduy.music.viewmodel.MainViewModel
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     private lateinit var binding: ActivityMainBinding
+    private lateinit var layoutHeaderBinding: LayoutHeaderNavigationBinding
     private lateinit var customButton: View
 
-    private var currentFragment: Int = 0
+    var currentFragment: Int = 0
     private var currentFragmentViewPager2Adapter: Int = 0
 
     lateinit var viewModel: MainViewModel
@@ -60,6 +63,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         Log.e(MAIN_ACTIVITY_TAG, "onCreate")
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
+        val headerView = binding.navigationView.getHeaderView(0)
+        layoutHeaderBinding = LayoutHeaderNavigationBinding.bind(headerView)
+
         setContentView(binding.root)
 
         viewModel = ViewModelProvider(this)[MainViewModel::class.java]
@@ -73,11 +79,42 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         setToolbarAndDrawerLayout()
 
+        initUINavigationHeader()
+
         setViewPager2Adapter()
 
         setBottomNavigation()
 
-        setListenerForMiniPlayer()
+        initListenerMiniPlayer()
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun initUINavigationHeader() {
+        viewModel.setUser(FirebaseAuth.getInstance().currentUser)
+        viewModel.getUser().observe(this) {
+            if (it != null) {
+                val name = it.displayName
+                val email = it.email
+                val photoUrl = it.photoUrl
+                layoutHeaderBinding.apply {
+                    Glide.with(this@MainActivity).load(photoUrl)
+                        .error(R.drawable.img_avatar_error)
+                        .into(imgAvatar)
+                    if (name != null) {
+                        tvUserName.text = name
+                    } else {
+                        tvUserName.text = ""
+                    }
+                    tvEmail.text = email
+                }
+            } else {
+                layoutHeaderBinding.apply {
+                    Glide.with(this@MainActivity).load(R.drawable.img_avatar_error).into(imgAvatar)
+                    tvUserName.text = "Guest"
+                    tvEmail.text = "Someone@gmail.com"
+                }
+            }
+        }
     }
 
     private fun setLayoutMiniPlayer(song: Song) {
@@ -92,7 +129,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
-    private fun setListenerForMiniPlayer() {
+    private fun initListenerMiniPlayer() {
         binding.apply {
             imgPlay.setOnClickListener {
                 viewModel.onClickPlayOrPause()
@@ -365,15 +402,20 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
             } else if (mainUi.visibility == View.GONE && contentFrame.visibility == View.VISIBLE) {
                 // khi main đang ẩn và content frame đang mở
-                currentFragment = 0
-                setTitleForToolbar(0, 1)
-                if (selectedMenuItem == null) {
-                    selectedMenuItem = binding.navigationView.menu.findItem(R.id.nav_appearance)
-                }
-                selectedMenuItem!!.isChecked = false
-                closeNavigation()
-                if (currentFragmentViewPager2Adapter != FRAGMENT_HOME) {
-                    customButton.visibility = View.VISIBLE
+                if (currentFragment == FRAGMENT_CHANGE_PASSWORD) {
+                    supportFragmentManager.popBackStack()
+                    currentFragment = FRAGMENT_ACCOUNT
+                } else {
+                    currentFragment = 0
+                    setTitleForToolbar(0, 1)
+                    if (selectedMenuItem == null) {
+                        selectedMenuItem = binding.navigationView.menu.findItem(R.id.nav_appearance)
+                    }
+                    selectedMenuItem!!.isChecked = false
+                    closeNavigation()
+                    if (currentFragmentViewPager2Adapter != FRAGMENT_HOME) {
+                        customButton.visibility = View.VISIBLE
+                    }
                 }
             } else {
                 super.onBackPressed()
@@ -448,6 +490,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 break
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.e(MAIN_ACTIVITY_TAG, "onResume")
+        viewModel.setUser(FirebaseAuth.getInstance().currentUser)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Log.e(MAIN_ACTIVITY_TAG, "onPause")
     }
 
     override fun onDestroy() {

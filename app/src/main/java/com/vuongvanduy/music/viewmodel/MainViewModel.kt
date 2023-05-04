@@ -8,6 +8,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.firebase.auth.FirebaseUser
 import com.vuongvanduy.music.R
 import com.vuongvanduy.music.fragment.MusicPlayerFragment
 import com.vuongvanduy.music.model.Song
@@ -27,6 +28,10 @@ class MainViewModel : ViewModel() {
         MutableLiveData<MutableList<Song>>()
     }
 
+    private val user: MutableLiveData<FirebaseUser> by lazy {
+        MutableLiveData<FirebaseUser>()
+    }
+
     var currentSong: Song? = null
     private val isPlaying: MutableLiveData<Boolean> by lazy {
         MutableLiveData<Boolean>()
@@ -40,6 +45,12 @@ class MainViewModel : ViewModel() {
     fun setData(context: Context) {
         this.context = context
     }
+
+    fun setUser(user: FirebaseUser?) {
+        this.user.value = user
+    }
+
+    fun getUser(): LiveData<FirebaseUser> = user
 
     fun setOnlineSongs(list: MutableList<Song>) {
         onlineSongs.value = list

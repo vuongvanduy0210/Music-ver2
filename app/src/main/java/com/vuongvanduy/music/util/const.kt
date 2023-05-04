@@ -60,6 +60,7 @@ const val FRAGMENT_APP_INFO = 7
 const val FRAGMENT_CONTACT = 8
 const val FRAGMENT_FEEDBACK = 9
 const val FRAGMENT_MUSIC_PLAYER = 10
+const val FRAGMENT_CHANGE_PASSWORD = 11
 
 const val TITLE_HOME = "Home"
 const val TITLE_ONLINE_SONGS = "Online Songs"
