@@ -35,18 +35,23 @@
             android:name=".activity.SignInActivity"
             android:exported="false"
             android:launchMode="singleInstance"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".activity.ForgotPasswordActivity"
+            android:exported="false"
+            android:launchMode="singleInstance"
             android:windowSoftInputMode="adjustResize"/>
         <activity
             android:name=".activity.SignUpActivity"
             android:exported="false"
             android:launchMode="singleInstance"
-            android:windowSoftInputMode="adjustResize"/>
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".activity.MainActivity"
             android:exported="true"
             android:launchMode="singleTop"
             android:theme="@style/Base.Theme.Music"
-            android:windowSoftInputMode="adjustResize"/>
+            android:windowSoftInputMode="adjustResize" />
 
         <service android:name=".service.MusicService" />
 

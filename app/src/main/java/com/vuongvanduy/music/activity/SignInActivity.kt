@@ -40,8 +40,17 @@ class SignInActivity : AppCompatActivity() {
         binding.btGuest.setOnClickListener {
             val intent = Intent(this@SignInActivity, MainActivity::class.java)
             startActivity(intent)
-            finish()
+            finishAffinity()
         }
+
+        binding.layoutForgotPassword.setOnClickListener {
+            onClickForgotPassword()
+        }
+    }
+
+    private fun onClickForgotPassword() {
+        val intent = Intent(this@SignInActivity, ForgotPasswordActivity::class.java)
+        startActivity(intent)
     }
 
     @SuppressLint("SetTextI18n")

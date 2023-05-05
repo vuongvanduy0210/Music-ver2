@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".activity.SignInActivity"
     android:gravity="center"
     android:orientation="vertical"
@@ -35,15 +35,31 @@
         android:layout_gravity="start"
         android:visibility="gone"
         android:textSize="17sp"/>
-
-    <TextView
+    
+    <LinearLayout
+        android:id="@+id/layout_forgot_password"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/forgot_password"
-        android:textSize="15sp"
+        android:orientation="vertical"
         android:layout_gravity="end"
         android:layout_marginTop="15dp"
-        android:textStyle="italic"/>
+        android:padding="7dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/forgot_password"
+            android:textSize="16sp"
+            android:textStyle="italic"
+            android:textColor="@color/teal_700"/>
+        
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/teal_700"/>
+        
+    </LinearLayout>
+
 
     <Button
         android:id="@+id/bt_sign_in"
@@ -59,13 +75,15 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center"
-        android:layout_marginTop="20dp">
+        android:layout_marginTop="20dp"
+        android:padding="8dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/don_t_have_an_account"
-            android:textSize="17sp"/>
+            android:textSize="17sp"
+            android:textStyle="italic"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -73,7 +91,8 @@
             android:text="@string/sign_up"
             android:textColor="@android:color/holo_green_light"
             android:layout_marginStart="10dp"
-            android:textSize="17sp"/>
+            android:textSize="17sp"
+            android:textStyle="italic"/>
 
     </LinearLayout>
 

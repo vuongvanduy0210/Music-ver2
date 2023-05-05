@@ -24,7 +24,7 @@
     <string name="dev_name">VuongVanDuy</string>
     <string name="dev">DyuW</string>
 
-    <string name="hint_search">Song name...</string>
+    <string name="hint_search">Song name…</string>
 
     <string name="version">Version 2.0</string>
     <string name="app_info">This application is created to help you listen to music\n Copyright © by VuongVanDuy</string>
@@ -46,4 +46,6 @@
     <string name="confirm_password_hint">Confirm Password</string>
     <string name="you_have_an_account">You have an account?</string>
     <string name="new_password_hint">New Password</string>
+    <string name="send_reset_password">Send Reset Password</string>
+    <string name="text_send_email">Enter your email to reset password:</string>
 </resources>

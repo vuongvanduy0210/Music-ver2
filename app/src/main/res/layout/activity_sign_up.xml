@@ -92,13 +92,15 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center"
-        android:layout_marginTop="20dp">
+        android:layout_marginTop="20dp"
+        android:padding="8dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/you_have_an_account"
-            android:textSize="17sp"/>
+            android:textSize="17sp"
+            android:textStyle="italic"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -106,7 +108,8 @@
             android:text="@string/sign_in"
             android:textColor="@android:color/holo_green_light"
             android:layout_marginStart="10dp"
-            android:textSize="17sp"/>
+            android:textSize="17sp"
+            android:textStyle="italic"/>
 
     </LinearLayout>
 
