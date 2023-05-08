@@ -33,14 +33,11 @@ class SignInActivity : AppCompatActivity() {
         }
 
         binding.layoutSignUp.setOnClickListener {
-            val intent = Intent(this@SignInActivity, SignUpActivity::class.java)
-            startActivity(intent)
+            onClickSignUp()
         }
 
         binding.btGuest.setOnClickListener {
-            val intent = Intent(this@SignInActivity, MainActivity::class.java)
-            startActivity(intent)
-            finishAffinity()
+            onClickBtGuest()
         }
 
         binding.layoutForgotPassword.setOnClickListener {
@@ -48,15 +45,11 @@ class SignInActivity : AppCompatActivity() {
         }
     }
 
-    private fun onClickForgotPassword() {
-        val intent = Intent(this@SignInActivity, ForgotPasswordActivity::class.java)
-        startActivity(intent)
-    }
-
     @SuppressLint("SetTextI18n")
     private fun onClickSignIn() {
         hideKeyboard()
         val progressDialog = ProgressDialog(this, "Signing in...")
+
         binding.tvError.apply {
             text = ""
             visibility = View.GONE
@@ -127,6 +120,24 @@ class SignInActivity : AppCompatActivity() {
                 }
             }
     }
+
+    private fun onClickSignUp() {
+        val intent = Intent(this@SignInActivity, SignUpActivity::class.java)
+        startActivity(intent)
+    }
+
+    private fun onClickBtGuest() {
+        val intent = Intent(this@SignInActivity, MainActivity::class.java)
+        startActivity(intent)
+        finishAffinity()
+    }
+
+    private fun onClickForgotPassword() {
+        val intent = Intent(this@SignInActivity, ForgotPasswordActivity::class.java)
+        startActivity(intent)
+    }
+
+
 
     private fun hideKeyboard() {
         val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager

@@ -9,7 +9,7 @@ import com.vuongvanduy.music.util.*
 class MyReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
 
-        //receive action from notification and send to service
+        // receive action from notification and send to service
         val actionMusic = intent?.getIntExtra(ACTION_MUSIC_NAME, 0)
 
         val intentService = Intent(context, MusicService::class.java)

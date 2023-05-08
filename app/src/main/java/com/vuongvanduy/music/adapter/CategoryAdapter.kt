@@ -9,7 +9,7 @@ import com.vuongvanduy.music.databinding.ItemCategoryBinding
 import com.vuongvanduy.music.model.Category
 import com.vuongvanduy.music.model.Song
 import com.vuongvanduy.music.my_interface.IClickCategoryListener
-import com.vuongvanduy.music.my_interface.IClickItemSongCategoryListener
+import com.vuongvanduy.music.my_interface.IClickSongListener
 
 class CategoryAdapter(
     private val listCategories: MutableList<Category>,
@@ -34,8 +34,8 @@ class CategoryAdapter(
             tvNameCategory.text = category.getName()
 
             val songCategoryAdapter = SongCategoryAdapter(category.getSongs(),
-                object : IClickItemSongCategoryListener {
-                    override fun onClickItemSong(song: Song) {
+                object : IClickSongListener {
+                    override fun onClickSong(song: Song) {
                         iClickCategoryListener.onClickSong(song, category.getName())
                     }
                 })
@@ -44,7 +44,7 @@ class CategoryAdapter(
             holder.binding.rcvSong.apply {
                 adapter = songCategoryAdapter
                 layoutManager = manger
-                btViewAlls.setOnClickListener {
+                btViewAll.setOnClickListener {
                     iClickCategoryListener.clickButtonViewAll(category.getName())
                 }
                 tvNameCategory.setOnClickListener {
@@ -55,5 +55,5 @@ class CategoryAdapter(
     }
 
     inner class CategoryViewHolder(val binding: ItemCategoryBinding) :
-        RecyclerView.ViewHolder(binding.root) {}
+        RecyclerView.ViewHolder(binding.root)
 }

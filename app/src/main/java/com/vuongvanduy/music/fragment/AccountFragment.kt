@@ -61,7 +61,6 @@ class AccountFragment : Fragment() {
                 val intent = result.data ?: return@registerForActivityResult
                 val uri = intent.data
                 if (uri != null) {
-                    Log.e("MainActivity", uri.toString())
                     uriImage = uri
                 }
             }
@@ -130,6 +129,7 @@ class AccountFragment : Fragment() {
                     Firebase.auth.signOut()
                     val intent = Intent(activity, SignInActivity::class.java)
                     startActivity(intent)
+                    activity.finishAffinity()
                     viewModel.setUser(null)
                 }
                 .setNegativeButton("Cancel") { _, _ -> }
@@ -146,16 +146,26 @@ class AccountFragment : Fragment() {
         }
     }
 
-    private fun onClickChangePassword() {
-        replaceFragment()
+    private fun requestPermissionReadStorage() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            openGallery()
+            return
+        }
+        if (activity.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            openGallery()
+        } else {
+            activityResultLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+        }
     }
 
-    @SuppressLint("CommitTransaction")
-    private fun replaceFragment() {
-        val transaction = activity.supportFragmentManager.beginTransaction()
-        transaction.replace(R.id.content_frame, ChangePasswordFragment()).
-        addToBackStack(null).commit()
-        activity.currentFragment = FRAGMENT_CHANGE_PASSWORD
+    private fun openGallery() {
+        val intent = Intent()
+        intent.apply {
+            type = "image/*"
+            action = Intent.ACTION_GET_CONTENT
+        }
+        activityResultGetImage
+            .launch(Intent.createChooser(intent, "Select picture"))
     }
 
     private fun onClickUpdateProfile() {
@@ -187,9 +197,16 @@ class AccountFragment : Fragment() {
         uriImage = null
     }
 
-    private fun setImageViewForUser(uri: Uri) {
-        Log.e("AccountFragment", uri.toString())
-        Glide.with(activity).load(uri).into(binding.imgUser)
+    private fun onClickChangePassword() {
+        replaceFragment()
+    }
+
+    @SuppressLint("CommitTransaction")
+    private fun replaceFragment() {
+        val transaction = activity.supportFragmentManager.beginTransaction()
+        transaction.replace(R.id.content_frame, ChangePasswordFragment()).
+        addToBackStack(null).commit()
+        activity.currentFragment = FRAGMENT_CHANGE_PASSWORD
     }
 
     @SuppressLint("SetTextI18n")
@@ -216,35 +233,9 @@ class AccountFragment : Fragment() {
             imgUser.isEnabled = true
 
             Glide.with(activity).load(user.photoUrl).error(R.drawable.img_avatar_error).into(imgUser)
-            if (user.displayName != null) {
-                edtName.setText(user.displayName)
-            } else {
-                edtName.setText("")
-            }
+            edtName.setText(user.displayName)
             tvEmail.text = user.email
         }
-    }
-
-    private fun requestPermissionReadStorage() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            openGallery()
-            return
-        }
-        if (activity.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            openGallery()
-        } else {
-            activityResultLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
-        }
-    }
-
-    private fun openGallery() {
-        val intent = Intent()
-        intent.apply {
-            type = "image/*"
-            action = Intent.ACTION_GET_CONTENT
-        }
-        activityResultGetImage
-            .launch(Intent.createChooser(intent, "Select picture"))
     }
 
     override fun onPause() {
@@ -256,6 +247,11 @@ class AccountFragment : Fragment() {
         super.onResume()
         setDataViewModel()
         uriImage?.let { setImageViewForUser(it) }
+    }
+
+    private fun setImageViewForUser(uri: Uri) {
+        Log.e("AccountFragment", uri.toString())
+        Glide.with(activity).load(uri).into(binding.imgUser)
     }
 
     private fun hideKeyboard() {

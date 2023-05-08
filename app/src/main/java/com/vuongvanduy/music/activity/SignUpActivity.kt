@@ -35,19 +35,21 @@ class SignUpActivity : AppCompatActivity() {
         }
 
         binding.layoutSignIn.setOnClickListener {
-            val intent = Intent(this@SignUpActivity, SignInActivity::class.java)
-            startActivity(intent)
+            onClickSignIn()
         }
     }
 
+
     @SuppressLint("SetTextI18n")
     private fun onClickSignUp() {
+        hideKeyboard()
         progressDialog = ProgressDialog(this, "Signing up...")
+
         binding.tvError.apply {
             text = ""
             visibility = View.GONE
         }
-        hideKeyboard()
+
         val email = binding.edtEmail.text.trim().toString()
         val name = binding.edtName.text.trim().toString()
         val password = binding.edtPassword.text.trim().toString()
@@ -98,27 +100,28 @@ class SignUpActivity : AppCompatActivity() {
             Toast.makeText(this,
                 "", Toast.LENGTH_SHORT).show()
             return
-        } else {
-            progressDialog.show()
-            FirebaseAuth.getInstance().fetchSignInMethodsForEmail(email)
-                .addOnCompleteListener { task ->
-                    progressDialog.dismiss()
-                    if (task.isSuccessful) {
-                        val signInMethods = task.result?.signInMethods
-                        if (!signInMethods.isNullOrEmpty()) {
-                            // Tài khoản da được đăng ký
-                            binding.apply {
-                                tvError.text = "Email already exists"
-                                edtEmail.setText("")
-                                tvError.visibility = View.VISIBLE
-                            }
-                            return@addOnCompleteListener
-                        } else {
-                            signUp(email, password, name)
+        }
+
+        progressDialog.show()
+        FirebaseAuth.getInstance().fetchSignInMethodsForEmail(email)
+            .addOnCompleteListener { task ->
+                progressDialog.dismiss()
+                if (task.isSuccessful) {
+                    val signInMethods = task.result?.signInMethods
+                    if (!signInMethods.isNullOrEmpty()) {
+                        // email is exists
+                        binding.apply {
+                            tvError.text = "Email already exists"
+                            edtEmail.setText("")
+                            tvError.visibility = View.VISIBLE
                         }
+                        return@addOnCompleteListener
+                    } else {
+                        // available for sign up
+                        signUp(email, password, name)
                     }
                 }
-        }
+            }
     }
 
     @SuppressLint("SetTextI18n")
@@ -164,6 +167,11 @@ class SignUpActivity : AppCompatActivity() {
                 finishAffinity()
             }
         }
+    }
+
+    private fun onClickSignIn() {
+        val intent = Intent(this@SignUpActivity, SignInActivity::class.java)
+        startActivity(intent)
     }
 
     private fun hideKeyboard() {

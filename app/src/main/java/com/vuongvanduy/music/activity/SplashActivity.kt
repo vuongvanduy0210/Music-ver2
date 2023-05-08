@@ -28,6 +28,20 @@ class SplashActivity : AppCompatActivity() {
         }
     }
 
+    private fun setThemeMode() {
+        Log.e("Splash Activity", "${DataLocalManager.getStringThemeMode()}")
+        when (DataLocalManager.getStringThemeMode()) {
+            SYSTEM_MODE ->
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+
+            LIGHT_MODE ->
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+
+            DARK_MODE ->
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+        }
+    }
+
     private fun nextActivity() {
         val user = FirebaseAuth.getInstance().currentUser
         if (user == null) {
@@ -40,20 +54,6 @@ class SplashActivity : AppCompatActivity() {
             val intent = Intent(this@SplashActivity, MainActivity::class.java)
             startActivity(intent)
             finish()
-        }
-    }
-
-    private fun setThemeMode() {
-        Log.e("Splash Activity", "${DataLocalManager.getStringThemeMode()}")
-        when (DataLocalManager.getStringThemeMode()) {
-            SYSTEM_MODE ->
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
-
-            LIGHT_MODE ->
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-
-            DARK_MODE ->
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
         }
     }
 }

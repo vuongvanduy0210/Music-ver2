@@ -38,9 +38,6 @@ const val FAVOURITE_SONGS_FRAGMENT_TAG = "FavouriteMusicFragment"
 const val MUSIC_PLAYER_FRAGMENT_TAG = "MusicPlayerFragment"
 const val DEVICE_SONGS_FRAGMENT_TAG = "DeviceMusicFragment"
 
-const val REQUEST_PERMISSION_READ_EXTERNAL = 1000
-const val REQUEST_CODE_NETWORK_STATE = 100
-
 const val KEY_THEME_MODE = "KEY_THEME_MODE"
 const val SYSTEM_MODE = "Mirror system preferences"
 const val LIGHT_MODE = "Light"
@@ -58,9 +55,8 @@ const val FRAGMENT_ACCOUNT = 5
 const val FRAGMENT_APPEARANCE = 6
 const val FRAGMENT_APP_INFO = 7
 const val FRAGMENT_CONTACT = 8
-const val FRAGMENT_FEEDBACK = 9
-const val FRAGMENT_MUSIC_PLAYER = 10
-const val FRAGMENT_CHANGE_PASSWORD = 11
+const val FRAGMENT_MUSIC_PLAYER = 9
+const val FRAGMENT_CHANGE_PASSWORD = 10
 
 const val TITLE_HOME = "Home"
 const val TITLE_ONLINE_SONGS = "Online Songs"
@@ -70,7 +66,6 @@ const val TITLE_ACCOUNT = "Account"
 const val TITLE_APPEARANCE = "Appearance"
 const val TITLE_APP_INFO = "About"
 const val TITLE_CONTACT = "Contact"
-const val TITLE_FEEDBACK = "Feedback"
 
 const val EMPTY_LIST_SONG_TEXT_ONLINE = "No song in list. " +
         "Please check your internet connection."

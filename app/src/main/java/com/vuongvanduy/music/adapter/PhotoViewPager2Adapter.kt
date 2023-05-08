@@ -39,6 +39,5 @@ class PhotoViewPager2Adapter
     }
 
     inner class PhotoViewHolder(val binding: ItemPhotoBinding) :
-        RecyclerView.ViewHolder(binding.root) {
-    }
+        RecyclerView.ViewHolder(binding.root)
 }

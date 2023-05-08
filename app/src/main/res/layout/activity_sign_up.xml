@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -24,7 +23,8 @@
             android:maxLength="100"
             android:layout_gravity="start"
             android:layout_weight="1"
-            android:layout_marginEnd="5dp"/>
+            android:layout_marginEnd="5dp"
+            android:imeOptions="actionNext"/>
 
         <EditText
             android:id="@+id/edt_name"
@@ -34,7 +34,7 @@
             android:maxLength="100"
             android:layout_gravity="end"
             android:layout_weight="1"
-            android:layout_marginStart="5dp"/>
+            android:layout_marginStart="5dp" />
 
     </LinearLayout>
 
@@ -53,7 +53,8 @@
             android:inputType="textPassword"
             android:maxLength="100"
             android:layout_weight="1"
-            android:layout_marginEnd="5dp"/>
+            android:layout_marginEnd="5dp"
+            android:imeOptions="actionNext"/>
 
         <EditText
             android:id="@+id/edt_confirm_password"
@@ -63,7 +64,8 @@
             android:inputType="textPassword"
             android:maxLength="100"
             android:layout_marginStart="5dp"
-            android:layout_weight="1"/>
+            android:layout_weight="1"
+            android:imeOptions="actionDone"/>
 
     </LinearLayout>
 

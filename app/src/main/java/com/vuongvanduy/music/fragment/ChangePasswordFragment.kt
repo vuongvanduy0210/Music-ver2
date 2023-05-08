@@ -40,11 +40,13 @@ class ChangePasswordFragment : Fragment() {
     private fun onClickChangePassword() {
         hideKeyboard()
         val dialog = ProgressDialog(requireActivity(), "Loading...")
+
         binding.apply {
             tvError.text = ""
             tvError.visibility = View.GONE
             tvNoti.visibility = View.GONE
         }
+
         val oldPass = binding.edtOldPassword.text.trim().toString()
         val newPass = binding.edtNewPassword.text.trim().toString()
         val confirmPass = binding.edtConfirmPassword.text.trim().toString()
@@ -86,36 +88,38 @@ class ChangePasswordFragment : Fragment() {
                 tvError.visibility = View.VISIBLE
             }
             return
-        } else {
-            val user = FirebaseAuth.getInstance().currentUser
-            val credential = EmailAuthProvider.getCredential(user?.email!!, oldPass)
-            dialog.show()
-            user.reauthenticate(credential)
-                .addOnCompleteListener { authTask ->
-                    dialog.dismiss()
-                    if (authTask.isSuccessful) {
-                        dialog.show()
-                        user.updatePassword(newPass)
-                            .addOnCompleteListener { task ->
-                                dialog.dismiss()
-                                if (task.isSuccessful) {
-                                    binding.apply {
-                                        edtOldPassword.setText("")
-                                        edtNewPassword.setText("")
-                                        edtConfirmPassword.setText("")
-                                    }
-                                    binding.tvNoti.text = "Change password success."
-                                    binding.tvNoti.visibility = View.VISIBLE
+        }
+
+        val user = FirebaseAuth.getInstance().currentUser
+        val credential = EmailAuthProvider.getCredential(user?.email!!, oldPass)
+        dialog.show()
+        user.reauthenticate(credential)
+            .addOnCompleteListener { authTask ->
+                dialog.dismiss()
+                if (authTask.isSuccessful) {
+                    dialog.show()
+                    user.updatePassword(newPass)
+                        .addOnCompleteListener { task ->
+                            dialog.dismiss()
+                            if (task.isSuccessful) {
+                                binding.apply {
+                                    edtOldPassword.setText("")
+                                    edtNewPassword.setText("")
+                                    edtConfirmPassword.setText("")
                                 }
+                                binding.tvNoti.text = "Change password success."
+                                binding.tvNoti.visibility = View.VISIBLE
                             }
-                    } else {
-                        // If authentication fails, show an error message
-                        binding.tvError.text = "Password is incorrect."
-                        binding.edtOldPassword.setText("")
-                        binding.tvError.visibility = View.VISIBLE
+                        }
+                } else {
+                    // If authentication fails, show an error message
+                    binding.apply {
+                        tvError.text = "Password is incorrect."
+                        tvError.visibility = View.VISIBLE
+                        edtOldPassword.setText("")
                     }
                 }
-        }
+            }
     }
 
     private fun hideKeyboard() {
