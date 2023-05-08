@@ -13,7 +13,7 @@
         android:layout_height="match_parent"
         android:scaleType="centerCrop"
         android:alpha="0.8"
-        android:foreground="@color/blue"/>
+        android:foreground="@color/black"/>
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"

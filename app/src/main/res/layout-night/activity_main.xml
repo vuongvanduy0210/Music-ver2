@@ -75,7 +75,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_alignParentTop="true"
-                    android:layout_above="@id/mini_player"/>
+                    android:layout_above="@id/mini_player"
+                    android:background="@color/black"/>
 
                 <RelativeLayout
                     android:id="@+id/mini_player"

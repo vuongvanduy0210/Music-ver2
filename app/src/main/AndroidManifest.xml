@@ -2,16 +2,17 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
 
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:name=".application.MyApplication"
@@ -24,7 +25,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Music"
         tools:targetApi="31">
-
         <activity
             android:name=".activity.SplashActivity"
             android:exported="true"
@@ -35,18 +35,29 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
+        <activity
+            android:name=".activity.SignInActivity"
+            android:exported="false"
+            android:launchMode="singleInstance"
+            />
+        <activity
+            android:name=".activity.ForgotPasswordActivity"
+            android:exported="false"
+            android:launchMode="singleInstance" />
+        <activity
+            android:name=".activity.SignUpActivity"
+            android:exported="false"
+            android:launchMode="singleInstance"
+            />
         <activity
             android:name=".activity.MainActivity"
             android:exported="true"
             android:launchMode="singleTop"
-            android:theme="@style/Base.Theme.Music">
+            android:theme="@style/Base.Theme.Music" />
 
-        </activity>
+        <service android:name=".service.MusicService" />
 
-        <service android:name=".service.MusicService"/>
-
-        <receiver android:name=".broadcast_receiver.MyReceiver"/>
+        <receiver android:name=".broadcast_receiver.MyReceiver" />
     </application>
 
 </manifest>

@@ -16,10 +16,6 @@ class MyApplication : Application() {
         createDataLocalManager()
     }
 
-    private fun createDataLocalManager() {
-        DataLocalManager.init(applicationContext)
-    }
-
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val name: CharSequence = getString(R.string.channel_name)
@@ -31,5 +27,9 @@ class MyApplication : Application() {
             val notificationManager = getSystemService(NotificationManager::class.java)
             notificationManager.createNotificationChannel(channel)
         }
+    }
+
+    private fun createDataLocalManager() {
+        DataLocalManager.init(applicationContext)
     }
 }

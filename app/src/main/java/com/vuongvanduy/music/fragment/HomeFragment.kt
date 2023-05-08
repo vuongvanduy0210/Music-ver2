@@ -91,31 +91,20 @@ class HomeFragment : Fragment() {
         setAutoSlideImage()
     }
 
-    private fun playSong(song: Song, categoryName: String) {
-        activity.apply {
-            viewModel.apply {
-                currentSong = song
-                if (categoryName == "Online Songs") {
-                    viewModel.getOnlineSongs().observe(activity) {
-                        sendListSongToService(it)
-                    }
-                } else if (categoryName == "Device Songs") {
-                    viewModel.getDeviceSongs().observe(activity) {
-                        sendListSongToService(it)
-                    }
+    private fun requestPermissionReadStorage() {
+        Looper.myLooper()?.let {
+            Handler(it).postDelayed({
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+                    viewModel.getLocalMusic()
+                    return@postDelayed
                 }
-                sendDataToService(ACTION_START)
-            }
-            openMusicPlayer()
-            getBinding().miniPlayer.visibility = View.VISIBLE
-        }
-    }
-
-    private fun gotoViewAll(categoryName: String) {
-        if (categoryName == "Online Songs") {
-            activity.getBinding().viewPager2.currentItem = 1
-        } else if (categoryName == "Device Songs") {
-            activity.getBinding().viewPager2.currentItem = 3
+                if (activity.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                    // get list song from device and send to music device fragment
+                    viewModel.getLocalMusic()
+                } else {
+                    activityResultLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                }
+            }, 500)
         }
     }
 
@@ -154,6 +143,34 @@ class HomeFragment : Fragment() {
         }
     }
 
+    private fun gotoViewAll(categoryName: String) {
+        if (categoryName == "Online Songs") {
+            activity.getBinding().viewPager2.currentItem = 1
+        } else if (categoryName == "Device Songs") {
+            activity.getBinding().viewPager2.currentItem = 3
+        }
+    }
+
+    private fun playSong(song: Song, categoryName: String) {
+        activity.apply {
+            viewModel.apply {
+                currentSong = song
+                if (categoryName == "Online Songs") {
+                    viewModel.getOnlineSongs().observe(activity) {
+                        sendListSongToService(it)
+                    }
+                } else if (categoryName == "Device Songs") {
+                    viewModel.getDeviceSongs().observe(activity) {
+                        sendListSongToService(it)
+                    }
+                }
+                sendDataToService(ACTION_START)
+            }
+            openMusicPlayer()
+            getBinding().miniPlayer.visibility = View.VISIBLE
+        }
+    }
+
     private fun setAutoSlideImage() {
         Glide.with(activity).load(R.drawable.img_home).into(binding.imgBackGround)
         viewModel.getPhotos().observe(activity) {
@@ -176,23 +193,6 @@ class HomeFragment : Fragment() {
             } else {
                 binding.slideImage.visibility = View.GONE
             }
-        }
-    }
-
-    private fun requestPermissionReadStorage() {
-        Looper.myLooper()?.let {
-            Handler(it).postDelayed({
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-                    viewModel.getLocalMusic()
-                    return@postDelayed
-                }
-                if (activity.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                    // get list song from device and send to music device fragment
-                    viewModel.getLocalMusic()
-                } else {
-                    activityResultLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
-                }
-            }, 500)
         }
     }
 

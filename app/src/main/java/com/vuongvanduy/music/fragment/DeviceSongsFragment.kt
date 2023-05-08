@@ -162,7 +162,7 @@ class DeviceSongsFragment : Fragment() {
                 )
 
                 if (isKeyboardOpen) {
-                    // Xử lý sự kiện mở bàn phím ảo
+                    // keyboard is open
                     activity.getBinding().apply {
                         bottomNavigation.visibility = View.GONE
                     }

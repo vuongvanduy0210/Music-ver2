@@ -88,49 +88,12 @@ class MusicPlayerFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         observerAction()
+
         setListenerButton()
+
         setListenerToolbar()
-    }
-
-    private fun setListenerToolbar() {
-        binding.imgBack.setOnClickListener {
-            activity.apply {
-                supportFragmentManager.beginTransaction()
-                    .remove(this@MusicPlayerFragment).commit()
-                supportFragmentManager.popBackStack()
-                if (getBinding().layoutMusicPlayer.visibility == View.VISIBLE) {
-                    closeMusicPlayerView()
-                }
-            }
-        }
-    }
-
-    private fun setListenerButton() {
-        binding.apply {
-            imgPrevious.setOnClickListener {
-                activity.viewModel.sendDataToService(ACTION_PREVIOUS)
-            }
-            imgPlay.setOnClickListener {
-                if (viewModel.isPlaying.value == true) {
-                    activity.viewModel.sendDataToService(ACTION_PAUSE)
-                } else {
-                    activity.viewModel.sendDataToService(ACTION_RESUME)
-                }
-            }
-
-            imgNext.setOnClickListener {
-                activity.viewModel.sendDataToService(ACTION_NEXT)
-            }
-
-            btLoop.setOnClickListener {
-                activity.viewModel.sendDataToService(ACTION_LOOP)
-            }
-
-            btShuffle.setOnClickListener {
-                activity.viewModel.sendDataToService(ACTION_SHUFFLE)
-            }
-        }
     }
 
     private fun observerAction() {
@@ -188,6 +151,64 @@ class MusicPlayerFragment : Fragment() {
         }
     }
 
+    private fun setListenerButton() {
+        binding.apply {
+            imgPrevious.setOnClickListener {
+                activity.viewModel.sendDataToService(ACTION_PREVIOUS)
+            }
+            imgPlay.setOnClickListener {
+                if (viewModel.isPlaying.value == true) {
+                    activity.viewModel.sendDataToService(ACTION_PAUSE)
+                } else {
+                    activity.viewModel.sendDataToService(ACTION_RESUME)
+                }
+            }
+
+            imgNext.setOnClickListener {
+                activity.viewModel.sendDataToService(ACTION_NEXT)
+            }
+
+            btLoop.setOnClickListener {
+                activity.viewModel.sendDataToService(ACTION_LOOP)
+            }
+
+            btShuffle.setOnClickListener {
+                activity.viewModel.sendDataToService(ACTION_SHUFFLE)
+            }
+        }
+    }
+
+    private fun setListenerToolbar() {
+        binding.imgBack.setOnClickListener {
+            activity.apply {
+                supportFragmentManager.beginTransaction()
+                    .remove(this@MusicPlayerFragment).commit()
+                supportFragmentManager.popBackStack()
+                if (getBinding().layoutMusicPlayer.visibility == View.VISIBLE) {
+                    closeMusicPlayerView()
+                }
+            }
+        }
+    }
+
+    private fun sendActionToService(progress: Int) {
+        val intentActivity = Intent(activity, MusicService::class.java)
+        intentActivity.putExtra(KEY_ACTION, ACTION_CONTROL_SEEK_BAR)
+        intentActivity.putExtra(KEY_PROGRESS, progress)
+        activity.startService(intentActivity)
+    }
+
+    private fun setLayoutForMusicPlayer(song: Song) {
+        binding.apply {
+            val imageUri = Uri.parse(song.getImageUri())
+            Glide.with(activity).load(imageUri).into(circleImageView)
+            tvMusicName.text = song.getName()
+            tvSinger.text = song.getSinger()
+            Glide.with(activity).load(imageUri).into(imgBackGround)
+        }
+        setSeekBarStatus()
+    }
+
     private fun setSeekBarStatus() {
         binding.seekBarMusic.apply {
 
@@ -217,24 +238,6 @@ class MusicPlayerFragment : Fragment() {
                 Handler(it).post(updateSeekBar)
             }
         }
-    }
-
-    private fun sendActionToService(progress: Int) {
-        val intentActivity = Intent(activity, MusicService::class.java)
-        intentActivity.putExtra(KEY_ACTION, ACTION_CONTROL_SEEK_BAR)
-        intentActivity.putExtra(KEY_PROGRESS, progress)
-        activity.startService(intentActivity)
-    }
-
-    private fun setLayoutForMusicPlayer(song: Song) {
-        binding.apply {
-            val imageUri = Uri.parse(song.getImageUri())
-            Glide.with(activity).load(imageUri).into(circleImageView)
-            tvMusicName.text = song.getName()
-            tvSinger.text = song.getSinger()
-            Glide.with(activity).load(imageUri).into(imgBackGround)
-        }
-        setSeekBarStatus()
     }
 
     private fun startAnimation() {

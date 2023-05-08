@@ -8,6 +8,7 @@ import android.os.Looper
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import com.google.firebase.auth.FirebaseAuth
 import com.vuongvanduy.music.R
 import com.vuongvanduy.music.shared_preferences.DataLocalManager
 import com.vuongvanduy.music.util.DARK_MODE
@@ -23,11 +24,7 @@ class SplashActivity : AppCompatActivity() {
         setThemeMode()
 
         Looper.myLooper()?.let {
-            Handler(it).postDelayed({
-                val intent = Intent(this@SplashActivity, MainActivity::class.java)
-                startActivity(intent)
-                finish()
-            }, 3000)
+            Handler(it).postDelayed({ nextActivity() }, 2000)
         }
     }
 
@@ -42,6 +39,21 @@ class SplashActivity : AppCompatActivity() {
 
             DARK_MODE ->
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+        }
+    }
+
+    private fun nextActivity() {
+        val user = FirebaseAuth.getInstance().currentUser
+        if (user == null) {
+            // chua login
+            val intent = Intent(this@SplashActivity, SignInActivity::class.java)
+            startActivity(intent)
+            finish()
+        } else {
+            // da login
+            val intent = Intent(this@SplashActivity, MainActivity::class.java)
+            startActivity(intent)
+            finish()
         }
     }
 }

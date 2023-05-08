@@ -8,11 +8,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.vuongvanduy.music.databinding.ItemSongInCategoryBinding
 import com.vuongvanduy.music.model.Song
-import com.vuongvanduy.music.my_interface.IClickItemSongCategoryListener
+import com.vuongvanduy.music.my_interface.IClickSongListener
 
 class SongCategoryAdapter(
     private var listSongShow: MutableList<Song>,
-    private val listener: IClickItemSongCategoryListener
+    private val listener: IClickSongListener
 ) : RecyclerView.Adapter<SongCategoryAdapter.SongCategoryViewHolder>() {
 
     private var listSongPlay: MutableList<Song>? = null
@@ -42,11 +42,11 @@ class SongCategoryAdapter(
             tvNameSong.text = song.getName()
             tvSinger.text = song.getSinger()
             layoutItemSong.setOnClickListener {
-                listener.onClickItemSong(song)
+                listener.onClickSong(song)
             }
         }
     }
 
     inner class SongCategoryViewHolder(val binding: ItemSongInCategoryBinding) :
-        RecyclerView.ViewHolder(binding.root) {}
+        RecyclerView.ViewHolder(binding.root)
 }

@@ -10,7 +10,6 @@
     <string name="nav_drawer_close">Close navigation drawer</string>
     <string name="nav_info">About</string>
     <string name="nav_contact">Contact</string>
-    <string name="nav_feedback">Feedback</string>
 
     <string name="title_favourite">Favourite Songs</string>
     <string name="title_online">Online Songs</string>
@@ -24,7 +23,7 @@
     <string name="dev_name">VuongVanDuy</string>
     <string name="dev">DyuW</string>
 
-    <string name="hint_search">Song name...</string>
+    <string name="hint_search">Song name…</string>
 
     <string name="version">Version 2.0</string>
     <string name="app_info">This application is created to help you listen to music\n Copyright © by VuongVanDuy</string>
@@ -32,4 +31,23 @@
     <string name="theme_mode">Theme</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="change_password">Change Password</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="update_profile">Update Profile</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="sign_in">Sign In</string>
+    <string name="email_hint">Email</string>
+    <string name="password_hint">Password</string>
+    <string name="forgot_password">Forgot password?</string>
+    <string name="don_t_have_an_account">Don\'t have an account?</string>
+    <string name="name_hint">Name</string>
+    <string name="confirm_password_hint">Confirm Password</string>
+    <string name="you_have_an_account">You have an account?</string>
+    <string name="new_password_hint">New Password</string>
+    <string name="send_reset_password">Send Reset Password</string>
+    <string name="text_send_email">Enter your email to reset password:</string>
+    <string name="continue_with_guest">Continue with Guest</string>
+    <string name="play_all">Play all</string>
+    <string name="view_all">View All</string>
 </resources>

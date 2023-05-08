@@ -25,10 +25,12 @@ import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem
 import com.bumptech.glide.Glide
 import com.google.android.material.navigation.NavigationView
+import com.google.firebase.auth.FirebaseAuth
 import com.vuongvanduy.music.R
 import com.vuongvanduy.music.shared_preferences.DataLocalManager
 import com.vuongvanduy.music.adapter.FragmentViewPager2Adapter
 import com.vuongvanduy.music.databinding.ActivityMainBinding
+import com.vuongvanduy.music.databinding.LayoutHeaderNavigationBinding
 import com.vuongvanduy.music.fragment.*
 import com.vuongvanduy.music.model.Song
 import com.vuongvanduy.music.transformer.ZoomOutPageTransformer
@@ -39,9 +41,10 @@ import com.vuongvanduy.music.viewmodel.MainViewModel
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     private lateinit var binding: ActivityMainBinding
+    private lateinit var layoutHeaderBinding: LayoutHeaderNavigationBinding
     private lateinit var customButton: View
 
-    private var currentFragment: Int = 0
+    var currentFragment: Int = 0
     private var currentFragmentViewPager2Adapter: Int = 0
 
     lateinit var viewModel: MainViewModel
@@ -60,6 +63,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         Log.e(MAIN_ACTIVITY_TAG, "onCreate")
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
+
+        val headerView = binding.navigationView.getHeaderView(0)
+        layoutHeaderBinding = LayoutHeaderNavigationBinding.bind(headerView)
+
         setContentView(binding.root)
 
         viewModel = ViewModelProvider(this)[MainViewModel::class.java]
@@ -73,50 +80,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         setToolbarAndDrawerLayout()
 
+        initUINavigationHeader()
+
         setViewPager2Adapter()
 
         setBottomNavigation()
 
-        setListenerForMiniPlayer()
-    }
-
-    private fun setLayoutMiniPlayer(song: Song) {
-
-        val imageUri = Uri.parse(song.getImageUri())
-        // set layout
-        binding.apply {
-            Glide.with(this@MainActivity).load(imageUri).into(imgMusic)
-            tvMusicName.text = song.getName()
-            tvSinger.text = song.getSinger()
-            Glide.with(this@MainActivity).load(imageUri).into(imgBgMiniPlayer)
-        }
-    }
-
-    private fun setListenerForMiniPlayer() {
-        binding.apply {
-            imgPlay.setOnClickListener {
-                viewModel.onClickPlayOrPause()
-            }
-            imgPrevious.setOnClickListener {
-                viewModel.sendDataToService(ACTION_PREVIOUS)
-            }
-            imgNext.setOnClickListener {
-                viewModel.sendDataToService(ACTION_NEXT)
-            }
-            imgClear.setOnClickListener {
-                viewModel.sendDataToService(ACTION_CLEAR)
-            }
-
-            miniPlayer.setOnClickListener {
-                openMusicPlayer()
-            }
-        }
-    }
-
-    fun openMusicPlayer() {
-        viewModel.onClickMiniPlayer()
-        openMusicPlayerView()
-        hideKeyboard()
+        initListenerMiniPlayer()
     }
 
     private fun observerAction() {
@@ -156,10 +126,34 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         return@observe
                     }
                     openMusicPlayerView()
-                    Log.e(MAIN_ACTIVITY_TAG, "openMusicPlayerView")
                 }
 
                 else -> {}
+            }
+        }
+    }
+
+    private fun setLayoutMiniPlayer(song: Song) {
+
+        val imageUri = Uri.parse(song.getImageUri())
+        // set layout
+        binding.apply {
+            Glide.with(this@MainActivity).load(imageUri).into(imgMusic)
+            tvMusicName.text = song.getName()
+            tvSinger.text = song.getSinger()
+            Glide.with(this@MainActivity).load(imageUri).into(imgBgMiniPlayer)
+        }
+    }
+
+    private fun checkServiceIsRunning() {
+        val activityManager = getSystemService(ACTIVITY_SERVICE) as ActivityManager
+        val runningServices = activityManager.getRunningServices(Int.MAX_VALUE)
+        for (serviceInfo in runningServices) {
+            if (serviceInfo.service.className
+                == "com.vuongvanduy.music.service.MusicService"
+            ) {
+                viewModel.sendDataToService(ACTION_RELOAD_DATA)
+                break
             }
         }
     }
@@ -188,6 +182,50 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         binding.navigationView.setNavigationItemSelectedListener(this)
 
         setOnClickButtonPlayAll()
+    }
+
+    private fun getDataFromHomeFragment() {
+        val dataViewModel: DataViewModel = ViewModelProvider(this)[DataViewModel::class.java]
+        dataViewModel.getListSongsOnline().observe(this) {
+            viewModel.setOnlineSongs(it)
+        }
+        dataViewModel.getListSongsDevice().observe(this) {
+            viewModel.setDeviceSongs(it)
+        }
+    }
+
+    override fun onNavigationItemSelected(item: MenuItem): Boolean {
+
+        selectedMenuItem = item
+        customButton.visibility = View.GONE
+
+        when (item.itemId) {
+            R.id.nav_account ->
+                replaceFragment(AccountFragment(), FRAGMENT_ACCOUNT, TITLE_ACCOUNT)
+
+            R.id.nav_appearance ->
+                replaceFragment(AppearanceFragment(), FRAGMENT_APPEARANCE, TITLE_APPEARANCE)
+
+            R.id.nav_app_info ->
+                replaceFragment(AppInfoFragment(), FRAGMENT_APP_INFO, TITLE_APP_INFO)
+
+            R.id.nav_contact ->
+                replaceFragment(ContactFragment(), FRAGMENT_CONTACT, TITLE_CONTACT)
+        }
+        selectedMenuItem!!.isChecked = true
+        binding.drawerLayout.closeDrawer(GravityCompat.START)
+        return true
+    }
+
+    @SuppressLint("CommitTransaction")
+    fun replaceFragment(fragment: Fragment, current: Int, title: String) {
+        if (currentFragment != current) {
+            val transaction = supportFragmentManager.beginTransaction()
+            transaction.replace(R.id.content_frame, fragment).commit()
+            currentFragment = current
+            binding.toolBarTitle.text = title
+            openNavigation()
+        }
     }
 
     private fun setOnClickButtonPlayAll() {
@@ -230,56 +268,34 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
-    private fun getDataFromHomeFragment() {
-        val dataViewModel: DataViewModel = ViewModelProvider(this)[DataViewModel::class.java]
-        dataViewModel.getListSongsOnline().observe(this) {
-            viewModel.setOnlineSongs(it)
-        }
-        dataViewModel.getListSongsDevice().observe(this) {
-            viewModel.setDeviceSongs(it)
-        }
+    fun openMusicPlayer() {
+        viewModel.onClickMiniPlayer()
+        openMusicPlayerView()
+        hideKeyboard()
     }
 
-    private fun hideKeyboard() {
-        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        val view: View = binding.root
-        imm.hideSoftInputFromWindow(view.windowToken, 0)
-    }
-
-    override fun onNavigationItemSelected(item: MenuItem): Boolean {
-
-        selectedMenuItem = item
-        customButton.visibility = View.GONE
-
-        when (item.itemId) {
-            R.id.nav_account ->
-                replaceFragment(AccountFragment(), FRAGMENT_ACCOUNT, TITLE_ACCOUNT)
-
-            R.id.nav_appearance ->
-                replaceFragment(AppearanceFragment(), FRAGMENT_APPEARANCE, TITLE_APPEARANCE)
-
-            R.id.nav_app_info ->
-                replaceFragment(AppInfoFragment(), FRAGMENT_APP_INFO, TITLE_APP_INFO)
-
-            R.id.nav_contact ->
-                replaceFragment(ContactFragment(), FRAGMENT_CONTACT, TITLE_CONTACT)
-
-            R.id.nav_feedback ->
-                replaceFragment(FeedbackFragment(), FRAGMENT_FEEDBACK, TITLE_FEEDBACK)
-        }
-        selectedMenuItem!!.isChecked = true
-        binding.drawerLayout.closeDrawer(GravityCompat.START)
-        return true
-    }
-
-    @SuppressLint("CommitTransaction")
-    fun replaceFragment(fragment: Fragment, current: Int, title: String) {
-        if (currentFragment != current) {
-            val transaction = supportFragmentManager.beginTransaction()
-            transaction.replace(R.id.content_frame, fragment).commit()
-            currentFragment = current
-            binding.toolBarTitle.text = title
-            openNavigation()
+    @SuppressLint("SetTextI18n")
+    private fun initUINavigationHeader() {
+        viewModel.setUser(FirebaseAuth.getInstance().currentUser)
+        viewModel.getUser().observe(this) {
+            if (it != null) {
+                val name = it.displayName
+                val email = it.email
+                val photoUrl = it.photoUrl
+                layoutHeaderBinding.apply {
+                    Glide.with(this@MainActivity).load(photoUrl)
+                        .error(R.drawable.img_avatar_error)
+                        .into(imgAvatar)
+                    tvUserName.text = name
+                    tvEmail.text = email
+                }
+            } else {
+                layoutHeaderBinding.apply {
+                    Glide.with(this@MainActivity).load(R.drawable.img_avatar_error).into(imgAvatar)
+                    tvUserName.text = "Guest"
+                    tvEmail.text = "Someone@gmail.com"
+                }
+            }
         }
     }
 
@@ -350,30 +366,59 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
+    private fun initListenerMiniPlayer() {
+        binding.apply {
+            imgPlay.setOnClickListener {
+                viewModel.onClickPlayOrPause()
+            }
+            imgPrevious.setOnClickListener {
+                viewModel.sendDataToService(ACTION_PREVIOUS)
+            }
+            imgNext.setOnClickListener {
+                viewModel.sendDataToService(ACTION_NEXT)
+            }
+            imgClear.setOnClickListener {
+                viewModel.sendDataToService(ACTION_CLEAR)
+            }
+
+            miniPlayer.setOnClickListener {
+                openMusicPlayer()
+            }
+        }
+    }
+
     @SuppressLint("ResourceType")
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         binding.apply {
-            if (drawerLayout.isDrawerOpen(GravityCompat.START)) { // khi drawer đang mở
+            if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                // drawer is opening
                 drawerLayout.closeDrawer(GravityCompat.START)
-            } else if (binding.layoutMusicPlayer.visibility == View.VISIBLE) { // khi music player đang mở
+            } else if (binding.layoutMusicPlayer.visibility == View.VISIBLE) {
+                // music player is opening
                 closeMusicPlayerView()
+
                 val fragment = supportFragmentManager.findFragmentById(R.id.layout_music_player)
                 if (fragment != null) {
                     supportFragmentManager.beginTransaction().remove(fragment).commit()
                     supportFragmentManager.popBackStack()
                 }
             } else if (mainUi.visibility == View.GONE && contentFrame.visibility == View.VISIBLE) {
-                // khi main đang ẩn và content frame đang mở
-                currentFragment = 0
-                setTitleForToolbar(0, 1)
-                if (selectedMenuItem == null) {
-                    selectedMenuItem = binding.navigationView.menu.findItem(R.id.nav_appearance)
-                }
-                selectedMenuItem!!.isChecked = false
-                closeNavigation()
-                if (currentFragmentViewPager2Adapter != FRAGMENT_HOME) {
-                    customButton.visibility = View.VISIBLE
+                // main is gone and content frame is opening
+                if (currentFragment == FRAGMENT_CHANGE_PASSWORD) {
+                    supportFragmentManager.popBackStack()
+                    currentFragment = FRAGMENT_ACCOUNT
+                } else {
+                    currentFragment = 0
+                    setTitleForToolbar(0, 1)
+                    if (selectedMenuItem == null) {
+                        selectedMenuItem = binding.navigationView.menu.findItem(R.id.nav_appearance)
+                    }
+                    selectedMenuItem!!.isChecked = false
+                    closeNavigation()
+                    if (currentFragmentViewPager2Adapter != FRAGMENT_HOME) {
+                        customButton.visibility = View.VISIBLE
+                    }
                 }
             } else {
                 super.onBackPressed()
@@ -387,7 +432,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 FRAGMENT_HOME -> TITLE_HOME
                 FRAGMENT_ONLINE_SONGS -> TITLE_ONLINE_SONGS
                 FRAGMENT_FAVOURITE_SONGS -> TITLE_FAVOURITE_SONGS
-                else -> TITLE_DEVICE_SONGS
+                FRAGMENT_DEVICE_SONGS -> TITLE_DEVICE_SONGS
+                else -> {
+                    ""
+                }
             }
         } else {
             when (position) {
@@ -409,7 +457,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     fun closeMusicPlayerView() {
         binding.apply {
-            Log.e(MAIN_ACTIVITY_TAG, "closeMusicPlayerView")
             layoutMusicPlayer.visibility = View.GONE
             mainUi.visibility = View.VISIBLE
             appBar.visibility = View.VISIBLE
@@ -417,7 +464,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     fun openNavigation() {
-        Log.e(MAIN_ACTIVITY_TAG, "openNavigation")
         binding.apply {
             contentFrame.visibility = View.VISIBLE
             mainUi.visibility = View.GONE
@@ -427,7 +473,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun closeNavigation() {
-        Log.e(MAIN_ACTIVITY_TAG, "closeNavigation")
         binding.apply {
             contentFrame.visibility = View.GONE
             mainUi.visibility = View.VISIBLE
@@ -435,19 +480,23 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
+    private fun hideKeyboard() {
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        val view: View = binding.root
+        imm.hideSoftInputFromWindow(view.windowToken, 0)
+    }
+
     fun getBinding() = this.binding
 
-    private fun checkServiceIsRunning() {
-        val activityManager = getSystemService(ACTIVITY_SERVICE) as ActivityManager
-        val runningServices = activityManager.getRunningServices(Int.MAX_VALUE)
-        for (serviceInfo in runningServices) {
-            if (serviceInfo.service.className
-                == "com.vuongvanduy.music.service.MusicService"
-            ) {
-                viewModel.sendDataToService(ACTION_RELOAD_DATA)
-                break
-            }
-        }
+    override fun onResume() {
+        super.onResume()
+        Log.e(MAIN_ACTIVITY_TAG, "onResume")
+        viewModel.setUser(FirebaseAuth.getInstance().currentUser)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Log.e(MAIN_ACTIVITY_TAG, "onPause")
     }
 
     override fun onDestroy() {
@@ -455,10 +504,5 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         Log.e(MAIN_ACTIVITY_TAG, "onDestroy")
         LocalBroadcastManager.getInstance(this).unregisterReceiver(serviceReceiver)
         viewModel.getThemeMode()?.let { DataLocalManager.putStringThemeMode(it) }
-    }
-
-    override fun recreate() {
-        Log.e(MAIN_ACTIVITY_TAG, "recreate")
-        super.recreate()
     }
 }

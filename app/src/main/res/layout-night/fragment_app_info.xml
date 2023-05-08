@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     tools:context=".fragment.AppInfoFragment"
     android:orientation="vertical"
-    android:background="@color/blue">
+    android:background="@color/black">
 
     <!-- TODO: Update blank fragment layout -->
     <de.hdodenhof.circleimageview.CircleImageView

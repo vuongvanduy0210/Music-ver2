@@ -88,7 +88,6 @@ class SongAdapter(private val iClickSongListener: IClickSongListener) :
     }
 
     inner class SongViewHolder(val binding: ItemSongBinding) :
-        RecyclerView.ViewHolder(binding.root) {
-    }
+        RecyclerView.ViewHolder(binding.root)
 
 }

@@ -34,31 +34,28 @@ class AppearanceFragment : Fragment() {
         // Inflate the layout for this fragment
         binding = FragmentAppearanceBinding.inflate(inflater, container, false)
         activity = requireActivity() as MainActivity
-        themeModeAdapter =
-            ThemeModeAdapter(requireActivity(), R.layout.item_selected, getListThemeMode())
+
+        themeModeAdapter = ThemeModeAdapter(requireActivity(),
+            R.layout.item_selected,
+            getListThemeMode())
+
         return binding.root
+    }
+
+    private fun getListThemeMode(): MutableList<ThemeMode> {
+        val list = mutableListOf<ThemeMode>()
+        list.add(ThemeMode(SYSTEM_MODE))
+        list.add(ThemeMode(LIGHT_MODE))
+        list.add(ThemeMode(DARK_MODE))
+        return list
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         activity.openNavigation()
+
         setThemeModeAdapter()
-    }
-
-    private fun setSelectionSpinner() {
-        when (AppCompatDelegate.getDefaultNightMode()) {
-            AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM ->
-                binding.themeSpinner.setSelection(0)
-
-            AppCompatDelegate.MODE_NIGHT_NO ->
-                binding.themeSpinner.setSelection(1)
-
-            AppCompatDelegate.MODE_NIGHT_YES ->
-                binding.themeSpinner.setSelection(2)
-
-            else -> {}
-        }
     }
 
     private fun setThemeModeAdapter() {
@@ -80,8 +77,22 @@ class AppearanceFragment : Fragment() {
         }
     }
 
+    private fun setSelectionSpinner() {
+        when (AppCompatDelegate.getDefaultNightMode()) {
+            AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM ->
+                binding.themeSpinner.setSelection(0)
+
+            AppCompatDelegate.MODE_NIGHT_NO ->
+                binding.themeSpinner.setSelection(1)
+
+            AppCompatDelegate.MODE_NIGHT_YES ->
+                binding.themeSpinner.setSelection(2)
+
+            else -> {}
+        }
+    }
+
     private fun changeThemeMode(position: Int) {
-//        activity.closeMusicPlayerView()
         when (position) {
             0 -> {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
@@ -100,18 +111,5 @@ class AppearanceFragment : Fragment() {
         }
 
         binding.themeSpinner.setSelection(position)
-    }
-
-    private fun getListThemeMode(): MutableList<ThemeMode> {
-        val list = mutableListOf<ThemeMode>()
-        list.add(ThemeMode(SYSTEM_MODE))
-        list.add(ThemeMode(LIGHT_MODE))
-        list.add(ThemeMode(DARK_MODE))
-        return list
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        Log.e("AppearanceFragment", "onDestroy")
     }
 }
