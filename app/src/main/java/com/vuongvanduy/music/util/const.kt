@@ -72,3 +72,5 @@ const val EMPTY_LIST_SONG_TEXT_ONLINE = "No song in list. " +
 const val EMPTY_LIST_SONG_TEXT_DEVICE = "No song in list. " +
         "Please allow access photos and " +
         "media on your device or add new song to your media storage."
+const val EMPTY_LIST_SONG_TEXT_FAVOURITE = "No song in list. " +
+        "You haven't added any songs to the favorites list yet."
