@@ -26,7 +26,7 @@ class ContactAdapter(private val list: MutableList<Contact>, private val listene
             .load(contact.getImageResource()).into(holder.binding.imgLogo)
         holder.binding.tvName.text = contact.getName()
         holder.binding.layoutItemContact.setOnClickListener {
-            listener.onClickContact(contact.getUrl())
+            listener.onClickContact(contact.getName(), contact.getUrl())
         }
     }
 

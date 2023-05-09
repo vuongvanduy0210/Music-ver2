@@ -172,6 +172,7 @@ class SignUpActivity : AppCompatActivity() {
     private fun onClickSignIn() {
         val intent = Intent(this@SignUpActivity, SignInActivity::class.java)
         startActivity(intent)
+        finish()
     }
 
     private fun hideKeyboard() {

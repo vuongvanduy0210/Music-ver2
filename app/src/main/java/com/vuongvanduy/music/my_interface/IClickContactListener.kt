@@ -2,5 +2,5 @@ package com.vuongvanduy.music.my_interface
 
 interface IClickContactListener {
 
-    fun onClickContact(url: String?)
+    fun onClickContact(name: String, url: String?)
 }

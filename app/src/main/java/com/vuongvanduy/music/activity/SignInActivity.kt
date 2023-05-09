@@ -124,6 +124,7 @@ class SignInActivity : AppCompatActivity() {
     private fun onClickSignUp() {
         val intent = Intent(this@SignInActivity, SignUpActivity::class.java)
         startActivity(intent)
+        finish()
     }
 
     private fun onClickBtGuest() {
