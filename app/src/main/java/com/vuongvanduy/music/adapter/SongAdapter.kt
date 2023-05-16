@@ -65,7 +65,7 @@ class SongAdapter(private val iClickSongListener: IClickSongListener) :
                 } else {
                     val list = ArrayList<Song>()
                     listSongsOld?.forEach {
-                        if (it.getName().lowercase().contains(strSearch.lowercase())) {
+                        if (it.getName()?.lowercase()?.contains(strSearch.lowercase()) == true) {
                             list.add(it)
                         }
                     }

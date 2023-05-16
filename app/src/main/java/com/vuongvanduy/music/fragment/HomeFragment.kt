@@ -91,6 +91,18 @@ class HomeFragment : Fragment() {
         setAutoSlideImage()
     }
 
+    /*private fun pushListSong() {
+        viewModel.getOnlineSongs().observe(activity) {
+            val database = Firebase.database
+            val myRef = database.getReference("all_songs")
+            myRef.setValue(it).addOnCompleteListener {
+                Log.e(MAIN_ACTIVITY_TAG, "Add all song success")
+            }.addOnFailureListener {
+                Log.e(MAIN_ACTIVITY_TAG, "Add all song fail")
+            }
+        }
+    }*/
+
     private fun requestPermissionReadStorage() {
         Looper.myLooper()?.let {
             Handler(it).postDelayed({

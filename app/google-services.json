@@ -1,13 +1,14 @@
 {
   "project_info": {
     "project_number": "771195999275",
+    "firebase_url": "https://music-98322-default-rtdb.asia-southeast1.firebasedatabase.app",
     "project_id": "music-98322",
     "storage_bucket": "music-98322.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:771195999275:android:6e082cbc26eaddc810866e",
+        "mobilesdk_app_id": "1:771195999275:android:169379adaa36087410866e",
         "android_client_info": {
           "package_name": "com.vuongvanduy.music"
         }

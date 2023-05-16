@@ -205,7 +205,7 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
             songs?.shuffle()
         } else {
             songs?.sortBy {
-                it.getName().lowercase()
+                it.getName()?.lowercase()
             }
         }
         isShuffling = !isShuffling
@@ -256,7 +256,8 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
             .setOngoing(true)
 
         if (currentSong?.getImageUri()?.contains("firebasestorage.googleapis.com")
-            == true) {
+            == true
+        ) {
             try {
                 serviceScope.launch {
                     val url = URL(currentSong?.getImageUri())
@@ -368,7 +369,7 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
 
     private fun isListSortedAscending(list: MutableList<Song>): Boolean {
         for (i in 1 until list.size) {
-            if (list[i].getName().lowercase() < list[i - 1].getName().lowercase()) {
+            if (list[i].getName()!!.lowercase() < list[i - 1].getName()!!.lowercase()) {
                 return false
             }
         }

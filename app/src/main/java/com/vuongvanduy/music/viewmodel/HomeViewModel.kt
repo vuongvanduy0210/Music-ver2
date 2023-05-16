@@ -11,12 +11,18 @@ import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.ktx.database
+import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.ktx.storage
 import com.vuongvanduy.music.model.Category
 import com.vuongvanduy.music.model.Photo
 import com.vuongvanduy.music.model.Song
 import com.vuongvanduy.music.util.*
+import java.text.Collator
+import java.util.Locale
 
 class HomeViewModel : ViewModel() {
 
@@ -39,9 +45,6 @@ class HomeViewModel : ViewModel() {
         MutableLiveData<MutableList<Song>>()
     }
 
-    private val listSongsPath = mutableListOf<String>()
-    private val listImagesPath = mutableListOf<String>()
-
     fun setData(context: Context) {
         this.context = context
         getListOnlineSongs()
@@ -60,25 +63,29 @@ class HomeViewModel : ViewModel() {
         val list = mutableListOf<Photo>()
         if (onlineSongs.value != null) {
             for (i in 0 until onlineSongs.value?.size!!) {
-                when(i) {
-                    1,2,3,4,5 -> {
-                        val photo = Photo(onlineSongs.value!![i].getImageUri())
-                        list.add(photo)
+                when (i) {
+                    1, 2, 3, 4, 5 -> {
+                        val photo = onlineSongs.value!![i].getImageUri()?.let { Photo(it) }
+                        if (photo != null) {
+                            list.add(photo)
+                        }
                     }
                 }
             }
             photos.value = list
         } else if (deviceSongs.value != null) {
             for (i in 0 until deviceSongs.value?.size!!) {
-                val photo = Photo(deviceSongs.value!![i].getImageUri())
-                list.add(photo)
+                val photo = deviceSongs.value!![i].getImageUri()?.let { Photo(it) }
+                if (photo != null) {
+                    list.add(photo)
+                }
             }
             photos.value = list
         }
     }
 
     fun getListCategories(): MutableList<Category> {
-        getAllSongsShow()
+        getOnlineSongsShow()
         getDeviceSongsShow()
         val list = mutableListOf<Category>()
         allSongsShow.value?.let { Category("Online Songs", it) }?.let { list.add(it) }
@@ -86,10 +93,10 @@ class HomeViewModel : ViewModel() {
         return list
     }
 
-    private fun getAllSongsShow() {
+    private fun getOnlineSongsShow() {
         val list = mutableListOf<Song>()
         if (onlineSongs.value != null) {
-            for (i in 0 until onlineSongs.value!!.size - 5) {
+            for (i in 0 until onlineSongs.value!!.size / 3) {
                 val song = onlineSongs.value!![i]
                 list.add(song)
             }
@@ -146,94 +153,43 @@ class HomeViewModel : ViewModel() {
                 list.add(song)
             } while (cursor.moveToNext())
 
-            list.sortBy { it.getName().lowercase() }
+            val collator = Collator.getInstance(Locale("vi"))
+            list.sortWith { obj1, obj2 ->
+                collator.compare(obj1.getName()?.lowercase(), obj2.getName()?.lowercase())
+            }
             deviceSongs.value = list
         }
     }
 
     private fun getListOnlineSongs() {
-        val storageRef = Firebase.storage("gs://music-98322.appspot.com/").reference
-        val musicRef = storageRef.child("music")
-        musicRef.listAll().addOnSuccessListener {
-            val items = it.items
-            if (items.isEmpty()) {
-                Log.e(ONLINE_SONGS_FRAGMENT_TAG, "List Song Firebase is empty")
-                return@addOnSuccessListener
-            }
-            items.forEach {result ->
-                val strUri = result.toString()
-                if (strUri.contains("img")) {
-                    listImagesPath.add(strUri)
-                } else {
-                    listSongsPath.add(strUri)
-                }
-            }
-        }.addOnCompleteListener {
-            getListSongUriFromFirebase()
-        }
-    }
-
-    private fun getListSongUriFromFirebase() {
-
         val list = mutableListOf<Song>()
-        for (i in 0 until listSongsPath.size) {
-            val songReference = Firebase.storage.getReferenceFromUrl(listSongsPath[i])
-            val imageReference = Firebase.storage.getReferenceFromUrl(listImagesPath[i])
-            var song: Song
-            var songUri: Uri? = null
-            var imageUri: Uri? = null
-            songReference.downloadUrl.addOnSuccessListener {
-                songUri = it
-                if (songUri != null && imageUri != null) {
-                    val uriString = it.toString()
-                    val fileName = Uri.parse(uriString)
-                        .lastPathSegment?.
-                        substringAfter("/")?.
-                        substringBefore(".")?.
-                        replace("_", " ")
-                        .toString()
-                    val songName = fileName.substringBefore("-")
-                    val singer = fileName.substringAfter("-")
-                    song = Song(songName, singer, songUri.toString(), imageUri.toString())
-                    if(!isSongExists(list, song)) {
-                        list.add(song)
+        val database = Firebase.database
+        val myRef = database.getReference("all_songs")
+        myRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                for (postSnapshot in dataSnapshot.children) {
+                    // TODO: handle the post
+                    val song = postSnapshot.getValue<Song>()
+                    if (song != null) {
+                        Log.e("MainActivity", song.toString())
+                        if (!isSongExists(list, song)) {
+                            list.add(song)
+                        }
                     }
                 }
-            }.addOnSuccessListener {
-                if (songUri != null && imageUri != null) {
-                    list.sortBy {song ->
-                        song.getName().lowercase()
-                    }
-                    onlineSongs.value = list
+                val collator = Collator.getInstance(Locale("vi"))
+                list.sortWith { obj1, obj2 ->
+                    collator.compare(obj1.getName()?.lowercase(), obj2.getName()?.lowercase())
                 }
+                onlineSongs.value = list
             }
 
-            imageReference.downloadUrl.addOnSuccessListener {
-                imageUri = it
-                if (songUri != null && imageUri != null) {
-                    val uriString = it.toString()
-                    val fileName = Uri.parse(uriString)
-                        .lastPathSegment?.
-                        substringAfter("img_")?.
-                        substringBefore(".")?.
-                        replace("_", " ")
-                        .toString()
-                    val songName = fileName.substringBefore("-")
-                    val singer = fileName.substringAfter("-")
-                    song = Song(songName, singer, songUri.toString(), imageUri.toString())
-                    if(!isSongExists(list, song)) {
-                        list.add(song)
-                    }
-                }
-            }.addOnSuccessListener {
-                if (songUri != null && imageUri != null) {
-                    list.sortBy {song ->
-                        song.getName().lowercase()
-                    }
-                    onlineSongs.value = list
-                }
+            override fun onCancelled(databaseError: DatabaseError) {
+                // Getting Post failed, log a message
+
+                // ...
             }
-        }
+        })
     }
 
     private fun isSongExists(songList: List<Song>, song: Song): Boolean {
