@@ -48,11 +48,18 @@ class HomeViewModel : ViewModel() {
     private val deviceSongsShow: MutableLiveData<MutableList<Song>> by lazy {
         MutableLiveData<MutableList<Song>>()
     }
+    lateinit var song: Song
+    lateinit var categoryName: String
 
     fun setData(context: Context) {
         this.context = context
         getListOnlineSongs()
         getListFavouriteSongs()
+    }
+
+    fun setSong(song: Song, categoryName: String) {
+        this.song = song
+        this.categoryName = categoryName
     }
 
     fun setListPhotos() {

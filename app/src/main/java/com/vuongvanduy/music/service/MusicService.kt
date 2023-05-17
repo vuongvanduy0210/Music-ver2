@@ -245,7 +245,7 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
             )
         }
 
-        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
+        val notificationBuilder = NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_music)
             .setSound(null)
             .setContentIntent(getPendingIntentClickNotification())
@@ -267,19 +267,27 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
                     val input: InputStream = connection.inputStream
                     val bitmap: Bitmap = BitmapFactory.decodeStream(input)
                     notificationLayout.setImageViewBitmap(R.id.img_bg_noti, bitmap)
-                    notification.setCustomContentView(notificationLayout)
-                    val notificationBuilder: Notification = notification.build()
-                    startForeground(1, notificationBuilder)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                        notificationBuilder.setCustomBigContentView(notificationLayout)
+                    } else {
+                        notificationBuilder.setCustomContentView(notificationLayout)
+                    }
+                    val notification: Notification = notificationBuilder.build()
+                    startForeground(1, notification)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         } else {
             notificationLayout.setImageViewUri(R.id.img_bg_noti, imageUri)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                notificationBuilder.setCustomBigContentView(notificationLayout)
+            } else {
+                notificationBuilder.setCustomContentView(notificationLayout)
+            }
+            val notification: Notification = notificationBuilder.build()
+            startForeground(1, notification)
         }
-        notification.setCustomContentView(notificationLayout)
-        val notificationBuilder: Notification = notification.build()
-        startForeground(1, notificationBuilder)
     }
 
     private fun getPendingIntent(context: Context, action: Int): PendingIntent? {

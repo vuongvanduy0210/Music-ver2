@@ -1,8 +1,11 @@
 package com.vuongvanduy.music.fragment
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.pm.PackageManager
 import android.graphics.Rect
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -17,6 +20,7 @@ import android.view.ViewTreeObserver
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -42,6 +46,15 @@ class OnlineSongsFragment : Fragment() {
     private lateinit var viewModel: OnlineSongsViewModel
 
     private lateinit var dataViewModel: DataViewModel
+
+    private val activityResultLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                playMusic(viewModel.getSong())
+            } else {
+                Log.e("FRAGMENT_NAME", "Permission denied")
+            }
+        }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -80,6 +93,7 @@ class OnlineSongsFragment : Fragment() {
     private fun setRecyclerViewSong() {
         songAdapter = ExtendSongAdapter(object : IClickSongListener {
             override fun onClickSong(song: Song) {
+                viewModel.setSong(song)
                 playSong(song)
             }
 
@@ -121,6 +135,31 @@ class OnlineSongsFragment : Fragment() {
     }
 
     private fun playSong(song: Song) {
+        requestPermissionPostNotification(song)
+    }
+
+    private fun addToFavourites(song: Song) {
+        if (FirebaseAuth.getInstance().currentUser == null) {
+            Toast.makeText(activity, "You need to log in to use this feature", Toast.LENGTH_SHORT)
+                .show()
+        } else {
+            dataViewModel.setFavouriteSong(song)
+        }
+    }
+
+    private fun requestPermissionPostNotification(song: Song) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (activity.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+                playMusic(song)
+            } else {
+                activityResultLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        } else {
+            playMusic(song)
+        }
+    }
+
+    private fun playMusic(song: Song) {
         activity.apply {
             viewModel.apply {
                 currentListName = TITLE_ONLINE_SONGS
@@ -132,15 +171,6 @@ class OnlineSongsFragment : Fragment() {
             }
             openMusicPlayer()
             getBinding().miniPlayer.visibility = View.VISIBLE
-        }
-    }
-
-    private fun addToFavourites(song: Song) {
-        if (FirebaseAuth.getInstance().currentUser == null) {
-            Toast.makeText(activity, "You need to log in to use this feature", Toast.LENGTH_SHORT)
-                .show()
-        } else {
-            dataViewModel.setFavouriteSong(song)
         }
     }
 

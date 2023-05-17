@@ -19,8 +19,14 @@ class FavouriteSongsViewModel : ViewModel() {
         MutableLiveData<MutableList<Song>>()
     }
 
+    private lateinit var song: Song
+
     fun setData(list: MutableList<Song>) {
         this.songs.value = list
+    }
+
+    fun setSong(song: Song) {
+        this.song = song
     }
 
     fun getSongs(): LiveData<MutableList<Song>> = songs
@@ -86,4 +92,6 @@ class FavouriteSongsViewModel : ViewModel() {
     fun removeSong(song: Song) {
         songs.value!!.remove(song)
     }
+
+    fun getSong() = song
 }

@@ -1,13 +1,17 @@
 package com.vuongvanduy.music.fragment
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.pm.PackageManager
 import android.graphics.Rect
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.util.TypedValue
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -16,6 +20,7 @@ import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -37,6 +42,15 @@ class DeviceSongsFragment : Fragment() {
     private lateinit var songAdapter: SongAdapter
 
     private lateinit var viewModel: DeviceSongsViewModel
+
+    private val activityResultLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                playMusic(viewModel.getSong())
+            } else {
+                Log.e("FRAGMENT_NAME", "Permission denied")
+            }
+        }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -73,6 +87,7 @@ class DeviceSongsFragment : Fragment() {
     private fun setRecyclerViewSong() {
         songAdapter = SongAdapter(object : IClickSongListener {
             override fun onClickSong(song: Song) {
+                viewModel.setSong(song)
                 playSong(song)
             }
 
@@ -111,6 +126,22 @@ class DeviceSongsFragment : Fragment() {
     }
 
     private fun playSong(song: Song) {
+        requestPermissionPostNotification(song)
+    }
+
+    private fun requestPermissionPostNotification(song: Song) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (activity.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+                playMusic(song)
+            } else {
+                activityResultLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        } else {
+            playMusic(song)
+        }
+    }
+
+    private fun playMusic(song: Song) {
         activity.apply {
             viewModel.apply {
                 currentListName = TITLE_DEVICE_SONGS

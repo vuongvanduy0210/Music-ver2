@@ -1,19 +1,23 @@
 package com.vuongvanduy.music.activity
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.ActivityManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
@@ -60,6 +64,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         }
     }
+
+    private val activityResultLauncherNotification =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                playMusic()
+            } else {
+                Log.e("FRAGMENT_NAME", "Permission denied")
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.e(MAIN_ACTIVITY_TAG, "onCreate")
@@ -241,49 +254,65 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         // click button play all
         customButton.setOnClickListener {
-            when (currentFragmentViewPager2Adapter) {
-                FRAGMENT_ONLINE_SONGS -> {
-                    viewModel.currentListName = TITLE_ONLINE_SONGS
-                    viewModel.getOnlineSongs().apply {
-                        if (value != null) {
-                            viewModel.apply {
-                                currentSong = value!![0]
-                                sendListSongToService(value!!)
-                                sendDataToService(ACTION_START)
-                            }
-                            binding.miniPlayer.visibility = View.VISIBLE
-                            openMusicPlayer()
+            requestPermissionPostNotification()
+        }
+    }
+
+    private fun requestPermissionPostNotification() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+                playMusic()
+            } else {
+                activityResultLauncherNotification.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        } else {
+            playMusic()
+        }
+    }
+
+    private fun playMusic() {
+        when (currentFragmentViewPager2Adapter) {
+            FRAGMENT_ONLINE_SONGS -> {
+                viewModel.currentListName = TITLE_ONLINE_SONGS
+                viewModel.getOnlineSongs().apply {
+                    if (value != null) {
+                        viewModel.apply {
+                            currentSong = value!![0]
+                            sendListSongToService(value!!)
+                            sendDataToService(ACTION_START)
                         }
+                        binding.miniPlayer.visibility = View.VISIBLE
+                        openMusicPlayer()
                     }
                 }
+            }
 
-                FRAGMENT_DEVICE_SONGS -> {
-                    viewModel.currentListName = TITLE_DEVICE_SONGS
-                    viewModel.getDeviceSongs().apply {
-                        if (value != null) {
-                            viewModel.apply {
-                                currentSong = value!![0]
-                                sendListSongToService(value!!)
-                                sendDataToService(ACTION_START)
-                            }
-                            binding.miniPlayer.visibility = View.VISIBLE
-                            openMusicPlayer()
+            FRAGMENT_DEVICE_SONGS -> {
+                viewModel.currentListName = TITLE_DEVICE_SONGS
+                viewModel.getDeviceSongs().apply {
+                    if (value != null) {
+                        viewModel.apply {
+                            currentSong = value!![0]
+                            sendListSongToService(value!!)
+                            sendDataToService(ACTION_START)
                         }
+                        binding.miniPlayer.visibility = View.VISIBLE
+                        openMusicPlayer()
                     }
                 }
+            }
 
-                FRAGMENT_FAVOURITE_SONGS -> {
-                    viewModel.currentListName = TITLE_FAVOURITE_SONGS
-                    viewModel.getFavouriteSongs().apply {
-                        if (value != null && value!!.isNotEmpty()) {
-                            viewModel.apply {
-                                currentSong = value!![0]
-                                sendListSongToService(value!!)
-                                sendDataToService(ACTION_START)
-                            }
-                            binding.miniPlayer.visibility = View.VISIBLE
-                            openMusicPlayer()
+            FRAGMENT_FAVOURITE_SONGS -> {
+                viewModel.currentListName = TITLE_FAVOURITE_SONGS
+                viewModel.getFavouriteSongs().apply {
+                    if (value != null && value!!.isNotEmpty()) {
+                        viewModel.apply {
+                            currentSong = value!![0]
+                            sendListSongToService(value!!)
+                            sendDataToService(ACTION_START)
                         }
+                        binding.miniPlayer.visibility = View.VISIBLE
+                        openMusicPlayer()
                     }
                 }
             }
