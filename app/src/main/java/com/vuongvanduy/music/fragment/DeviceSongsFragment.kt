@@ -71,10 +71,14 @@ class DeviceSongsFragment : Fragment() {
 
     @SuppressLint("SetTextI18n")
     private fun setRecyclerViewSong() {
-        songAdapter = SongAdapter(object: IClickSongListener {
+        songAdapter = SongAdapter(object : IClickSongListener {
             override fun onClickSong(song: Song) {
                 playSong(song)
             }
+
+            override fun onClickAddFavourites(song: Song) {}
+
+            override fun onClickRemoveFavourites(song: Song) {}
         })
         viewModel.getSongs().apply {
             if (value == null || value!!.isEmpty()) {
@@ -109,6 +113,7 @@ class DeviceSongsFragment : Fragment() {
     private fun playSong(song: Song) {
         activity.apply {
             viewModel.apply {
+                currentListName = TITLE_DEVICE_SONGS
                 currentSong = song
                 this@DeviceSongsFragment.viewModel.getSongs().value?.let {
                     sendListSongToService(it)
@@ -136,12 +141,20 @@ class DeviceSongsFragment : Fragment() {
                 false
             }
 
-            addTextChangedListener(object: TextWatcher {
-                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) {
+                }
 
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
 
-                override fun afterTextChanged(s: Editable?) { songAdapter.filter.filter(s) }
+                override fun afterTextChanged(s: Editable?) {
+                    songAdapter.filter.filter(s)
+                }
             })
         }
     }

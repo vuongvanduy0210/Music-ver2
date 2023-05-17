@@ -73,4 +73,6 @@ dependencies {
     implementation 'androidx.fragment:fragment:1.5.7'
 
     implementation 'androidx.media:media:1.6.0'
+
+    implementation 'com.chauthai.swipereveallayout:swipe-reveal-layout:1.4.1'
 }

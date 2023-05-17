@@ -31,6 +31,8 @@ import kotlinx.coroutines.withContext
 import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
+import java.text.Collator
+import java.util.Locale
 
 
 class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener {
@@ -67,16 +69,9 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
         val bundle = intent?.extras
         if (bundle != null) {
             //receive list songs
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-                val listReceive = bundle.getSerializable(KEY_LIST_SONGS)
-                if (listReceive != null) {
-                    songs = listReceive as MutableList<Song>
-                }
-            } else {
-                val listReceive = bundle.getSerializable(KEY_LIST_SONGS, Song::class.java)
-                if (listReceive != null) {
-                    songs = listReceive as MutableList<Song>
-                }
+            val listReceive = bundle.getSerializable(KEY_LIST_SONGS)
+            if (listReceive != null) {
+                songs = listReceive as MutableList<Song>
             }
 
             //receive song
@@ -204,8 +199,9 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
         if (!isShuffling) {
             songs?.shuffle()
         } else {
-            songs?.sortBy {
-                it.getName()?.lowercase()
+            val collator = Collator.getInstance(Locale("vi"))
+            songs?.sortWith { obj1, obj2 ->
+                collator.compare(obj1.getName()?.lowercase(), obj2.getName()?.lowercase())
             }
         }
         isShuffling = !isShuffling
@@ -368,8 +364,9 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
     }
 
     private fun isListSortedAscending(list: MutableList<Song>): Boolean {
+        val collator = Collator.getInstance(java.util.Locale("vi"))
         for (i in 1 until list.size) {
-            if (list[i].getName()!!.lowercase() < list[i - 1].getName()!!.lowercase()) {
+            if (collator.compare(list[i].getName()!!, list[i - 1].getName()!!) < 0) {
                 return false
             }
         }

@@ -128,10 +128,19 @@ class HomeFragment : Fragment() {
                 setListPhotos()
                 setRecyclerViewCategory()
             }
+            getFavouriteSongs().observe(activity) {
+                dataViewModel.setListSongsFavourite(it)
+            }
             getDeviceSongs().observe(activity) {
                 dataViewModel.setListSongsDevice(it)
                 setListPhotos()
                 setRecyclerViewCategory()
+            }
+        }
+
+        dataViewModel.getUser().observe(activity) {
+            if (it != null) {
+                viewModel.setData(activity)
             }
         }
     }
@@ -168,11 +177,13 @@ class HomeFragment : Fragment() {
             viewModel.apply {
                 currentSong = song
                 if (categoryName == "Online Songs") {
-                    viewModel.getOnlineSongs().observe(activity) {
+                    currentListName = TITLE_ONLINE_SONGS
+                    getOnlineSongs().observe(activity) {
                         sendListSongToService(it)
                     }
                 } else if (categoryName == "Device Songs") {
-                    viewModel.getDeviceSongs().observe(activity) {
+                    currentListName = TITLE_DEVICE_SONGS
+                    getDeviceSongs().observe(activity) {
                         sendListSongToService(it)
                     }
                 }

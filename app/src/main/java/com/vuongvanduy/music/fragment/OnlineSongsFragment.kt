@@ -16,12 +16,14 @@ import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.firebase.auth.FirebaseAuth
 import com.vuongvanduy.music.activity.MainActivity
-import com.vuongvanduy.music.adapter.SongAdapter
+import com.vuongvanduy.music.adapter.ExtendSongAdapter
 import com.vuongvanduy.music.databinding.FragmentOnlineSongsBinding
 import com.vuongvanduy.music.model.Song
 import com.vuongvanduy.music.my_interface.IClickSongListener
@@ -35,9 +37,11 @@ class OnlineSongsFragment : Fragment() {
 
     private lateinit var activity: MainActivity
 
-    private lateinit var songAdapter: SongAdapter
+    private lateinit var songAdapter: ExtendSongAdapter
 
     private lateinit var viewModel: OnlineSongsViewModel
+
+    private lateinit var dataViewModel: DataViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -47,6 +51,7 @@ class OnlineSongsFragment : Fragment() {
         binding = FragmentOnlineSongsBinding.inflate(inflater, container, false)
         activity = requireActivity() as MainActivity
         viewModel = ViewModelProvider(activity)[OnlineSongsViewModel::class.java]
+        dataViewModel = ViewModelProvider(activity)[DataViewModel::class.java]
         return binding.root
     }
 
@@ -64,7 +69,6 @@ class OnlineSongsFragment : Fragment() {
     }
 
     private fun getDataFromHomeFragment() {
-        val dataViewModel: DataViewModel = ViewModelProvider(activity)[DataViewModel::class.java]
         dataViewModel.getListSongsOnline().observe(activity) {
             if (it != null) {
                 viewModel.setData(it)
@@ -74,11 +78,18 @@ class OnlineSongsFragment : Fragment() {
 
     @SuppressLint("SetTextI18n")
     private fun setRecyclerViewSong() {
-        songAdapter = SongAdapter(object: IClickSongListener {
+        songAdapter = ExtendSongAdapter(object : IClickSongListener {
             override fun onClickSong(song: Song) {
                 playSong(song)
             }
-        })
+
+            override fun onClickAddFavourites(song: Song) {
+                addToFavourites(song)
+            }
+
+            override fun onClickRemoveFavourites(song: Song) {}
+        }, TITLE_ONLINE_SONGS)
+
         viewModel.getSongs().apply {
             if (value == null || value!!.isEmpty()) {
                 binding.apply {
@@ -112,6 +123,7 @@ class OnlineSongsFragment : Fragment() {
     private fun playSong(song: Song) {
         activity.apply {
             viewModel.apply {
+                currentListName = TITLE_ONLINE_SONGS
                 currentSong = song
                 this@OnlineSongsFragment.viewModel.getSongs().value?.let {
                     sendListSongToService(it)
@@ -123,6 +135,14 @@ class OnlineSongsFragment : Fragment() {
         }
     }
 
+    private fun addToFavourites(song: Song) {
+        if (FirebaseAuth.getInstance().currentUser == null) {
+            Toast.makeText(activity, "You need to log in to use this feature", Toast.LENGTH_SHORT)
+                .show()
+        } else {
+            dataViewModel.setFavouriteSong(song)
+        }
+    }
 
     private fun setOnClickBtSearchView() {
         binding.imgClear.apply {
@@ -139,12 +159,20 @@ class OnlineSongsFragment : Fragment() {
                 false
             }
 
-            addTextChangedListener(object: TextWatcher {
-                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) {
+                }
 
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
 
-                override fun afterTextChanged(s: Editable?) { songAdapter.filter.filter(s) }
+                override fun afterTextChanged(s: Editable?) {
+                    songAdapter.filter.filter(s)
+                }
             })
         }
     }
@@ -166,12 +194,10 @@ class OnlineSongsFragment : Fragment() {
                 )
 
                 if (isKeyboardOpen) {
-                    // Xử lý sự kiện mở bàn phím ảo
                     activity.getBinding().apply {
                         bottomNavigation.visibility = View.GONE
                     }
                 } else {
-                    // Xử lý sự kiện đóng bàn phím ảo
                     Looper.myLooper()?.let {
                         Handler(it).postDelayed({
                             activity.getBinding().apply {

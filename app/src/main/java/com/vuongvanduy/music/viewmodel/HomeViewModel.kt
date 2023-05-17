@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
@@ -32,6 +33,9 @@ class HomeViewModel : ViewModel() {
     private val onlineSongs: MutableLiveData<MutableList<Song>> by lazy {
         MutableLiveData<MutableList<Song>>()
     }
+    private val favouriteSongs: MutableLiveData<MutableList<Song>> by lazy {
+        MutableLiveData<MutableList<Song>>()
+    }
     private val deviceSongs: MutableLiveData<MutableList<Song>> by lazy {
         MutableLiveData<MutableList<Song>>()
     }
@@ -48,6 +52,7 @@ class HomeViewModel : ViewModel() {
     fun setData(context: Context) {
         this.context = context
         getListOnlineSongs()
+        getListFavouriteSongs()
     }
 
     fun setListPhotos() {
@@ -56,6 +61,7 @@ class HomeViewModel : ViewModel() {
 
     fun getPhotos(): LiveData<MutableList<Photo>> = photos
     fun getOnlineSongs(): LiveData<MutableList<Song>> = onlineSongs
+    fun getFavouriteSongs(): LiveData<MutableList<Song>> = favouriteSongs
     fun getDeviceSongs(): LiveData<MutableList<Song>> = deviceSongs
 
     private fun getListPhotos() {
@@ -115,6 +121,79 @@ class HomeViewModel : ViewModel() {
         }
     }
 
+    private fun getListOnlineSongs() {
+        val list = mutableListOf<Song>()
+        val database = Firebase.database
+        val myRef = database.getReference("all_songs")
+        myRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                for (postSnapshot in dataSnapshot.children) {
+                    // TODO: handle the post
+                    val song = postSnapshot.getValue<Song>()
+                    if (song != null) {
+                        if (!isSongExists(list, song)) {
+                            list.add(song)
+                        }
+                    }
+                }
+                val collator = Collator.getInstance(Locale("vi"))
+                list.sortWith { obj1, obj2 ->
+                    collator.compare(obj1.getName()?.lowercase(), obj2.getName()?.lowercase())
+                }
+                onlineSongs.value = list
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                // Getting Post failed, log a message
+
+                // ...
+            }
+        })
+    }
+
+    private fun isSongExists(songList: List<Song>, song: Song): Boolean {
+        for (s in songList) {
+            if (s.getResourceUri() == song.getResourceUri()) {
+                return true
+            }
+        }
+        return false
+    }
+
+    private fun getListFavouriteSongs() {
+        val list = mutableListOf<Song>()
+        if (FirebaseAuth.getInstance().currentUser == null) {
+            return
+        }
+        val email = FirebaseAuth.getInstance().currentUser?.email?.substringBefore(".")
+        val database = Firebase.database
+        val myRef = email?.let { database.getReference(it).child("favourite_songs") }
+        myRef?.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                for (postSnapshot in dataSnapshot.children) {
+                    // TODO: handle the post
+                    val song = postSnapshot.getValue<Song>()
+                    if (song != null) {
+                        if (!isSongExists(list, song)) {
+                            list.add(song)
+                        }
+                    }
+                }
+                val collator = Collator.getInstance(Locale("vi"))
+                list.sortWith { obj1, obj2 ->
+                    collator.compare(obj1.getName()?.lowercase(), obj2.getName()?.lowercase())
+                }
+                favouriteSongs.value = list
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                // Getting Post failed, log a message
+
+                // ...
+            }
+        })
+    }
+
     @SuppressLint("Recycle")
     fun getLocalMusic() {
         val list = mutableListOf<Song>()
@@ -159,45 +238,5 @@ class HomeViewModel : ViewModel() {
             }
             deviceSongs.value = list
         }
-    }
-
-    private fun getListOnlineSongs() {
-        val list = mutableListOf<Song>()
-        val database = Firebase.database
-        val myRef = database.getReference("all_songs")
-        myRef.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                for (postSnapshot in dataSnapshot.children) {
-                    // TODO: handle the post
-                    val song = postSnapshot.getValue<Song>()
-                    if (song != null) {
-                        Log.e("MainActivity", song.toString())
-                        if (!isSongExists(list, song)) {
-                            list.add(song)
-                        }
-                    }
-                }
-                val collator = Collator.getInstance(Locale("vi"))
-                list.sortWith { obj1, obj2 ->
-                    collator.compare(obj1.getName()?.lowercase(), obj2.getName()?.lowercase())
-                }
-                onlineSongs.value = list
-            }
-
-            override fun onCancelled(databaseError: DatabaseError) {
-                // Getting Post failed, log a message
-
-                // ...
-            }
-        })
-    }
-
-    private fun isSongExists(songList: List<Song>, song: Song): Boolean {
-        for (s in songList) {
-            if (s.getResourceUri() == song.getResourceUri()) {
-                return true
-            }
-        }
-        return false
     }
 }

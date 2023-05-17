@@ -11,6 +11,8 @@
     <color name="blue2">#121212</color>
     <color name="gray">#E6E1E1</color>
     <color name="red">#E91E63</color>
+    <color name="redDark">#921E45</color>
+    <color name="redLight">#E62969</color>
     <color name="blueLight">#289CD1</color>
     <color name="yellow">#EA900B</color>
     <color name="orange">#FF5722</color>

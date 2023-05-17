@@ -1,6 +1,5 @@
 package com.vuongvanduy.music.fragment
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Rect
 import android.os.Bundle
@@ -16,16 +15,17 @@ import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.vuongvanduy.music.R
 import com.vuongvanduy.music.activity.MainActivity
-import com.vuongvanduy.music.adapter.SongAdapter
+import com.vuongvanduy.music.adapter.ExtendSongAdapter
 import com.vuongvanduy.music.databinding.FragmentFavouriteSongsBinding
 import com.vuongvanduy.music.model.Song
 import com.vuongvanduy.music.my_interface.IClickSongListener
 import com.vuongvanduy.music.util.*
+import com.vuongvanduy.music.viewmodel.DataViewModel
 import com.vuongvanduy.music.viewmodel.FavouriteSongsViewModel
 
 class FavouriteSongsFragment : Fragment() {
@@ -34,7 +34,7 @@ class FavouriteSongsFragment : Fragment() {
 
     private lateinit var activity: MainActivity
 
-    private lateinit var songAdapter: SongAdapter
+    private lateinit var songAdapter: ExtendSongAdapter
 
     private lateinit var viewModel: FavouriteSongsViewModel
 
@@ -51,7 +51,7 @@ class FavouriteSongsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setDataViewModel()
+        getDataFromHomeFragment()
 
         setRecyclerViewSong()
 
@@ -60,17 +60,47 @@ class FavouriteSongsFragment : Fragment() {
         observerDisplayKeyboard()
     }
 
-    private fun setDataViewModel() {
+    private fun getDataFromHomeFragment() {
+        val dataViewModel: DataViewModel = ViewModelProvider(activity)[DataViewModel::class.java]
+        dataViewModel.getListSongsFavourite().observe(activity) {
+            if (it != null) {
+                viewModel.setData(it)
+            }
+        }
 
+        dataViewModel.getFavouriteSong().observe(activity) {
+            if (it != null) {
+                if (viewModel.getSongs().value != null
+                    && viewModel.isSongExists(viewModel.getSongs().value!!, it)
+                ) {
+                    Toast.makeText(
+                        activity,
+                        "This song is exist in favourites", Toast.LENGTH_SHORT
+                    ).show()
+                    return@observe
+                }
+                viewModel.addSong(it, activity)
+                Toast.makeText(
+                    activity,
+                    "Add song to favourites success", Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
     }
 
     private fun setRecyclerViewSong() {
-        songAdapter = SongAdapter(object : IClickSongListener{
+        songAdapter = ExtendSongAdapter(object : IClickSongListener {
             override fun onClickSong(song: Song) {
                 playSong(song)
             }
 
-        })
+            override fun onClickAddFavourites(song: Song) {}
+
+            override fun onClickRemoveFavourites(song: Song) {
+                removeSong(song)
+            }
+
+        }, TITLE_FAVOURITE_SONGS)
 
         viewModel.getSongs().apply {
             if (value == null || value!!.isEmpty()) {
@@ -89,6 +119,12 @@ class FavouriteSongsFragment : Fragment() {
                         tvNotiListSong.visibility = View.GONE
                         rcvListSongs.visibility = View.VISIBLE
                     }
+                } else {
+                    binding.apply {
+                        tvNotiListSong.text = EMPTY_LIST_SONG_TEXT_FAVOURITE
+                        tvNotiListSong.visibility = View.VISIBLE
+                        rcvListSongs.visibility = View.GONE
+                    }
                 }
                 songAdapter.setData(it)
             }
@@ -105,6 +141,7 @@ class FavouriteSongsFragment : Fragment() {
     private fun playSong(song: Song) {
         activity.apply {
             viewModel.apply {
+                currentListName = TITLE_FAVOURITE_SONGS
                 currentSong = song
                 this@FavouriteSongsFragment.viewModel.getSongs().value?.let {
                     sendListSongToService(it)
@@ -113,6 +150,18 @@ class FavouriteSongsFragment : Fragment() {
             }
             openMusicPlayer()
             getBinding().miniPlayer.visibility = View.VISIBLE
+        }
+    }
+
+    private fun removeSong(song: Song) {
+        viewModel.removeSongFromFirebase(song, activity)
+        viewModel.removeSong(song)
+        activity.viewModel.apply {
+            if (currentListName != null && currentListName == TITLE_FAVOURITE_SONGS) {
+                if (viewModel.getSongs().value != null) {
+                    sendListSongToService(viewModel.getSongs().value!!)
+                }
+            }
         }
     }
 
@@ -131,12 +180,20 @@ class FavouriteSongsFragment : Fragment() {
                 false
             }
 
-            addTextChangedListener(object: TextWatcher {
-                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) {
+                }
 
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
 
-                override fun afterTextChanged(s: Editable?) { songAdapter.filter.filter(s) }
+                override fun afterTextChanged(s: Editable?) {
+                    songAdapter.filter.filter(s)
+                }
             })
         }
     }
