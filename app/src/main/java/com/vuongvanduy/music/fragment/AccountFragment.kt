@@ -17,6 +17,7 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
@@ -57,7 +58,6 @@ class AccountFragment : Fragment() {
     private val activityResultGetImage =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
-                // xử lý ảnh được chọn ở đây
                 val intent = result.data ?: return@registerForActivityResult
                 val uri = intent.data
                 if (uri != null) {
@@ -77,6 +77,7 @@ class AccountFragment : Fragment() {
         return binding.root
     }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -151,10 +152,20 @@ class AccountFragment : Fragment() {
             openGallery()
             return
         }
-        if (activity.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            openGallery()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (activity.checkSelfPermission(Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED) {
+                // get list song from device and send to music device fragment
+                openGallery()
+            } else {
+                activityResultLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
+            }
         } else {
-            activityResultLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+            if (activity.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                // get list song from device and send to music device fragment
+                openGallery()
+            } else {
+                activityResultLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+            }
         }
     }
 
@@ -187,9 +198,11 @@ class AccountFragment : Fragment() {
             .addOnCompleteListener { task ->
                 dialog.dismiss()
                 if (task.isSuccessful) {
-                    Toast.makeText(activity,
+                    Toast.makeText(
+                        activity,
                         "Update profile success.",
-                        Toast.LENGTH_SHORT).show()
+                        Toast.LENGTH_SHORT
+                    ).show()
                     setDataViewModel()
                     activity.viewModel.setUser(FirebaseAuth.getInstance().currentUser)
                 }
@@ -204,8 +217,8 @@ class AccountFragment : Fragment() {
     @SuppressLint("CommitTransaction")
     private fun replaceFragment() {
         val transaction = activity.supportFragmentManager.beginTransaction()
-        transaction.replace(R.id.content_frame, ChangePasswordFragment()).
-        addToBackStack(null).commit()
+        transaction.replace(R.id.content_frame, ChangePasswordFragment()).addToBackStack(null)
+            .commit()
         activity.currentFragment = FRAGMENT_CHANGE_PASSWORD
     }
 
@@ -232,7 +245,8 @@ class AccountFragment : Fragment() {
             edtName.isEnabled = true
             imgUser.isEnabled = true
 
-            Glide.with(activity).load(user.photoUrl).error(R.drawable.img_avatar_error).into(imgUser)
+            Glide.with(activity).load(user.photoUrl).error(R.drawable.img_avatar_error)
+                .into(imgUser)
             edtName.setText(user.displayName)
             tvEmail.text = user.email
         }

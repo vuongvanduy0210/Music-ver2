@@ -11,9 +11,17 @@ class OnlineSongsViewModel : ViewModel() {
         MutableLiveData<MutableList<Song>>()
     }
 
+    private lateinit var song: Song
+
     fun setData(list: MutableList<Song>) {
         songs.value = list
     }
 
+    fun setSong(song: Song) {
+        this.song = song
+    }
+
     fun getSongs(): LiveData<MutableList<Song>> = songs
+
+    fun getSong() = song
 }

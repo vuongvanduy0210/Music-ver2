@@ -55,6 +55,15 @@ class HomeFragment : Fragment() {
             }
         }
 
+    private val activityResultLauncherNotification =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                playMusic(viewModel.song, viewModel.categoryName)
+            } else {
+                Log.e("FRAGMENT_NAME", "Permission denied")
+            }
+        }
+
     private var myHandler = Handler(Looper.getMainLooper())
     private val runnable = Runnable {
         binding.slideImage.apply {
@@ -91,6 +100,18 @@ class HomeFragment : Fragment() {
         setAutoSlideImage()
     }
 
+    /*private fun pushListSong() {
+        viewModel.getOnlineSongs().observe(activity) {
+            val database = Firebase.database
+            val myRef = database.getReference("all_songs")
+            myRef.setValue(it).addOnCompleteListener {
+                Log.e(MAIN_ACTIVITY_TAG, "Add all song success")
+            }.addOnFailureListener {
+                Log.e(MAIN_ACTIVITY_TAG, "Add all song fail")
+            }
+        }
+    }*/
+
     private fun requestPermissionReadStorage() {
         Looper.myLooper()?.let {
             Handler(it).postDelayed({
@@ -98,11 +119,20 @@ class HomeFragment : Fragment() {
                     viewModel.getLocalMusic()
                     return@postDelayed
                 }
-                if (activity.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                    // get list song from device and send to music device fragment
-                    viewModel.getLocalMusic()
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    if (activity.checkSelfPermission(Manifest.permission.READ_MEDIA_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+                        // get list song from device and send to music device fragment
+                        viewModel.getLocalMusic()
+                    } else {
+                        activityResultLauncher.launch(Manifest.permission.READ_MEDIA_AUDIO)
+                    }
                 } else {
-                    activityResultLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                    if (activity.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                        // get list song from device and send to music device fragment
+                        viewModel.getLocalMusic()
+                    } else {
+                        activityResultLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                    }
                 }
             }, 500)
         }
@@ -116,10 +146,19 @@ class HomeFragment : Fragment() {
                 setListPhotos()
                 setRecyclerViewCategory()
             }
+            getFavouriteSongs().observe(activity) {
+                dataViewModel.setListSongsFavourite(it)
+            }
             getDeviceSongs().observe(activity) {
                 dataViewModel.setListSongsDevice(it)
                 setListPhotos()
                 setRecyclerViewCategory()
+            }
+        }
+
+        dataViewModel.getUser().observe(activity) {
+            if (it != null) {
+                viewModel.setData(activity)
             }
         }
     }
@@ -134,6 +173,7 @@ class HomeFragment : Fragment() {
                 }
 
                 override fun onClickSong(song: Song, categoryName: String) {
+                    viewModel.setSong(song, categoryName)
                     playSong(song, categoryName)
                 }
             })
@@ -152,15 +192,33 @@ class HomeFragment : Fragment() {
     }
 
     private fun playSong(song: Song, categoryName: String) {
+        requestPermissionPostNotification(song, categoryName)
+    }
+
+    private fun requestPermissionPostNotification(song: Song, categoryName: String) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (activity.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+                playMusic(song, categoryName)
+            } else {
+                activityResultLauncherNotification.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        } else {
+            playMusic(song, categoryName)
+        }
+    }
+
+    private fun playMusic(song: Song, categoryName: String) {
         activity.apply {
             viewModel.apply {
                 currentSong = song
                 if (categoryName == "Online Songs") {
-                    viewModel.getOnlineSongs().observe(activity) {
+                    currentListName = TITLE_ONLINE_SONGS
+                    getOnlineSongs().observe(activity) {
                         sendListSongToService(it)
                     }
                 } else if (categoryName == "Device Songs") {
-                    viewModel.getDeviceSongs().observe(activity) {
+                    currentListName = TITLE_DEVICE_SONGS
+                    getDeviceSongs().observe(activity) {
                         sendListSongToService(it)
                     }
                 }

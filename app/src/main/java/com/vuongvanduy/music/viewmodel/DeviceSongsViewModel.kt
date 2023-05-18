@@ -11,9 +11,18 @@ class DeviceSongsViewModel : ViewModel() {
         MutableLiveData<MutableList<Song>>()
     }
 
+    private lateinit var song: Song
+
     fun getSongs(): LiveData<MutableList<Song>> = songs
+
+    fun setSong(song: Song) {
+        this.song = song
+    }
+
 
     fun setData(list: MutableList<Song>) {
         this.songs.value = list
     }
+
+    fun getSong() = song
 }

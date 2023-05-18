@@ -21,6 +21,7 @@ const val ACTION_RELOAD_DATA = 11
 
 const val KEY_SONG = "key_song"
 const val KEY_LIST_SONGS = "key_list_song"
+const val KEY_LIST_NAME = "key_list_name"
 const val KEY_ACTION = "key_action"
 const val KEY_FINAL_TIME = "key_final_time"
 const val KEY_CURRENT_TIME = "key_current_time"
@@ -73,4 +74,7 @@ const val EMPTY_LIST_SONG_TEXT_DEVICE = "No song in list. " +
         "Please allow access photos and " +
         "media on your device or add new song to your media storage."
 const val EMPTY_LIST_SONG_TEXT_FAVOURITE = "No song in list. " +
-        "You haven't added any songs to the favorites list yet."
+        "Please check your internet connection or add songs to favorites."
+
+const val TEXT_ADD_FAVOURITES = "Add To Favourites"
+const val TEXT_REMOVE_FAVOURITES = "Remove This Song"

@@ -24,6 +24,10 @@ class MainViewModel : ViewModel() {
         MutableLiveData<MutableList<Song>>()
     }
 
+    private val favouriteSongs: MutableLiveData<MutableList<Song>> by lazy {
+        MutableLiveData<MutableList<Song>>()
+    }
+
     private val deviceSongs: MutableLiveData<MutableList<Song>> by lazy {
         MutableLiveData<MutableList<Song>>()
     }
@@ -33,6 +37,7 @@ class MainViewModel : ViewModel() {
     }
 
     var currentSong: Song? = null
+    var currentListName: String? = null
     private val isPlaying: MutableLiveData<Boolean> by lazy {
         MutableLiveData<Boolean>()
     }
@@ -56,6 +61,10 @@ class MainViewModel : ViewModel() {
         onlineSongs.value = list
     }
 
+    fun setFavouriteSongs(list: MutableList<Song>) {
+        favouriteSongs.value = list
+    }
+
     fun setDeviceSongs(list: MutableList<Song>) {
         deviceSongs.value = list
     }
@@ -65,6 +74,7 @@ class MainViewModel : ViewModel() {
     }
 
     fun getOnlineSongs(): LiveData<MutableList<Song>> = onlineSongs
+    fun getFavouriteSongs(): LiveData<MutableList<Song>> = favouriteSongs
     fun getDeviceSongs(): LiveData<MutableList<Song>> = deviceSongs
 
     fun getThemeMode() = themeMode
@@ -78,7 +88,7 @@ class MainViewModel : ViewModel() {
 
     fun onClickMiniPlayer() {
         openMusicPlayer()
-        if(isPlaying.value == false) {
+        if (isPlaying.value == false) {
             sendDataToService(ACTION_RESUME)
         }
         sendDataToService(ACTION_OPEN_MUSIC_PLAYER)

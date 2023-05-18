@@ -8,12 +8,15 @@ import android.widget.Filter
 import android.widget.Filterable
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.vuongvanduy.music.databinding.ItemSongBinding
+import com.vuongvanduy.music.databinding.ItemExtendSongBinding
 import com.vuongvanduy.music.model.Song
 import com.vuongvanduy.music.my_interface.IClickSongListener
+import com.vuongvanduy.music.util.*
 
-class SongAdapter(private val iClickSongListener: IClickSongListener) :
-    RecyclerView.Adapter<SongAdapter.SongViewHolder>(), Filterable {
+class ExtendSongAdapter(
+    private val iClickSongListener: IClickSongListener,
+    private val name: String
+) : RecyclerView.Adapter<ExtendSongAdapter.SongViewHolder>(), Filterable {
 
     private var songs: List<Song>? = null
     private var listSongsOld: List<Song>? = null
@@ -26,8 +29,9 @@ class SongAdapter(private val iClickSongListener: IClickSongListener) :
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SongViewHolder {
-        val binding: ItemSongBinding =
-            ItemSongBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val binding = ItemExtendSongBinding.inflate(
+            LayoutInflater.from(parent.context), parent, false
+        )
         return SongViewHolder(binding)
     }
 
@@ -51,6 +55,21 @@ class SongAdapter(private val iClickSongListener: IClickSongListener) :
                 tvSingerInList.text = song.getSinger()
                 layoutItem.setOnClickListener {
                     iClickSongListener.onClickSong(song)
+                }
+                if (name == TITLE_ONLINE_SONGS) {
+                    holder.binding.tvAction.text = TEXT_ADD_FAVOURITES
+                } else if (name == TITLE_FAVOURITE_SONGS) {
+                    holder.binding.tvAction.text = TEXT_REMOVE_FAVOURITES
+                }
+
+                layoutAddFavourites.setOnClickListener {
+                    if (name == TITLE_ONLINE_SONGS) {
+                        iClickSongListener.onClickAddFavourites(song)
+                        holder.binding.layoutItemOnlineSong.close(true)
+                    } else if (name == TITLE_FAVOURITE_SONGS) {
+                        iClickSongListener.onClickRemoveFavourites(song)
+                        holder.binding.layoutItemOnlineSong.close(true)
+                    }
                 }
             }
         }
@@ -87,7 +106,7 @@ class SongAdapter(private val iClickSongListener: IClickSongListener) :
         }
     }
 
-    inner class SongViewHolder(val binding: ItemSongBinding) :
+    inner class SongViewHolder(val binding: ItemExtendSongBinding) :
         RecyclerView.ViewHolder(binding.root)
 
 }

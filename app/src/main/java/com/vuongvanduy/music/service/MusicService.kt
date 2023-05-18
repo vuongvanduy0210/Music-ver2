@@ -1,12 +1,11 @@
 package com.vuongvanduy.music.service
 
-import android.app.Notification
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
+import android.graphics.drawable.Drawable
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Build
@@ -18,6 +17,9 @@ import android.widget.RemoteViews
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.transition.Transition
 import com.vuongvanduy.music.R
 import com.vuongvanduy.music.activity.MainActivity
 import com.vuongvanduy.music.broadcast_receiver.MyReceiver
@@ -27,10 +29,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.io.InputStream
-import java.net.HttpURLConnection
-import java.net.URL
+import java.text.Collator
+import java.util.Locale
 
 
 class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener {
@@ -47,7 +47,7 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
     private var finalTime: Int = 0
     private var progressReceive: Int = 0
 
-    private val serviceScope = CoroutineScope(Dispatchers.IO)
+    private val notificationScope = CoroutineScope(Dispatchers.Default)
 
     private val handler = Looper.myLooper()
     private var runnable = Runnable {
@@ -67,16 +67,9 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
         val bundle = intent?.extras
         if (bundle != null) {
             //receive list songs
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-                val listReceive = bundle.getSerializable(KEY_LIST_SONGS)
-                if (listReceive != null) {
-                    songs = listReceive as MutableList<Song>
-                }
-            } else {
-                val listReceive = bundle.getSerializable(KEY_LIST_SONGS, Song::class.java)
-                if (listReceive != null) {
-                    songs = listReceive as MutableList<Song>
-                }
+            val listReceive = bundle.getSerializable(KEY_LIST_SONGS)
+            if (listReceive != null) {
+                songs = listReceive as MutableList<Song>
             }
 
             //receive song
@@ -204,8 +197,9 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
         if (!isShuffling) {
             songs?.shuffle()
         } else {
-            songs?.sortBy {
-                it.getName().lowercase()
+            val collator = Collator.getInstance(Locale("vi"))
+            songs?.sortWith { obj1, obj2 ->
+                collator.compare(obj1.getName()?.lowercase(), obj2.getName()?.lowercase())
             }
         }
         isShuffling = !isShuffling
@@ -216,73 +210,82 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
 
         val imageUri = Uri.parse(currentSong?.getImageUri())
         val notificationLayout = RemoteViews(packageName, R.layout.custom_notification_music)
-        notificationLayout.apply {
-            //set layout for notification
-            setTextViewText(R.id.tv_music_name_in_notification, currentSong?.getName())
-            setTextViewText(R.id.tv_singer_in_notification, currentSong?.getSinger())
+        val notificationBuilder = NotificationCompat.Builder(this, CHANNEL_ID)
 
-            //// set on click button in notification
-            if (isPlaying) {
-                setOnClickPendingIntent(
-                    R.id.img_play_in_notification,
-                    getPendingIntent(this@MusicService, ACTION_PAUSE)
-                )
-                setImageViewResource(R.id.img_play_in_notification, R.drawable.ic_pause)
-            } else {
-                setOnClickPendingIntent(
-                    R.id.img_play_in_notification,
-                    getPendingIntent(this@MusicService, ACTION_RESUME)
-                )
-                setImageViewResource(R.id.img_play_in_notification, R.drawable.ic_play)
-            }
-            setOnClickPendingIntent(
-                R.id.img_clear_in_notification,
-                getPendingIntent(this@MusicService, ACTION_CLEAR)
-            )
-            setOnClickPendingIntent(
-                R.id.img_previous_in_notification,
-                getPendingIntent(this@MusicService, ACTION_PREVIOUS)
-            )
-            setOnClickPendingIntent(
-                R.id.img_next_in_notification,
-                getPendingIntent(this@MusicService, ACTION_NEXT)
-            )
-        }
+        notificationScope.launch {
+            notificationLayout.apply {
+                //set layout for notification
+                setTextViewText(R.id.tv_music_name_in_notification, currentSong?.getName())
+                setTextViewText(R.id.tv_singer_in_notification, currentSong?.getSinger())
 
-        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_music)
-            .setSound(null)
-            .setContentIntent(getPendingIntentClickNotification())
-            .setOngoing(true)
-
-        if (currentSong?.getImageUri()?.contains("firebasestorage.googleapis.com")
-            == true) {
-            try {
-                serviceScope.launch {
-                    val url = URL(currentSong?.getImageUri())
-                    val connection = withContext(Dispatchers.IO) {
-                        url.openConnection()
-                    } as HttpURLConnection
-                    connection.doInput = true
-                    withContext(Dispatchers.IO) {
-                        connection.connect()
-                    }
-                    val input: InputStream = connection.inputStream
-                    val bitmap: Bitmap = BitmapFactory.decodeStream(input)
-                    notificationLayout.setImageViewBitmap(R.id.img_bg_noti, bitmap)
-                    notification.setCustomContentView(notificationLayout)
-                    val notificationBuilder: Notification = notification.build()
-                    startForeground(1, notificationBuilder)
+                //// set on click button in notification
+                if (isPlaying) {
+                    setOnClickPendingIntent(
+                        R.id.img_play_in_notification,
+                        getPendingIntent(this@MusicService, ACTION_PAUSE)
+                    )
+                    setImageViewResource(R.id.img_play_in_notification, R.drawable.ic_pause)
+                } else {
+                    setOnClickPendingIntent(
+                        R.id.img_play_in_notification,
+                        getPendingIntent(this@MusicService, ACTION_RESUME)
+                    )
+                    setImageViewResource(R.id.img_play_in_notification, R.drawable.ic_play)
                 }
-            } catch (e: Exception) {
-                e.printStackTrace()
+                setOnClickPendingIntent(
+                    R.id.img_clear_in_notification,
+                    getPendingIntent(this@MusicService, ACTION_CLEAR)
+                )
+                setOnClickPendingIntent(
+                    R.id.img_previous_in_notification,
+                    getPendingIntent(this@MusicService, ACTION_PREVIOUS)
+                )
+                setOnClickPendingIntent(
+                    R.id.img_next_in_notification,
+                    getPendingIntent(this@MusicService, ACTION_NEXT)
+                )
             }
-        } else {
-            notificationLayout.setImageViewUri(R.id.img_bg_noti, imageUri)
+
+            notificationBuilder.setSmallIcon(R.drawable.ic_music)
+                .setSound(null)
+                .setContentIntent(getPendingIntentClickNotification())
+                .setOngoing(true)
+
+            if (imageUri.toString().contains("firebasestorage.googleapis.com")) {
+
+                Glide.with(this@MusicService).asBitmap().load(imageUri)
+                    .into(object : CustomTarget<Bitmap>() {
+                        override fun onResourceReady(
+                            resource: Bitmap,
+                            transition: Transition<in Bitmap>?
+                        ) {
+                            // set background
+                            notificationLayout.setImageViewBitmap(
+                                R.id.img_bg_noti,
+                                resource
+                            )
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                                notificationBuilder.setCustomBigContentView(notificationLayout)
+                            } else {
+                                notificationBuilder.setCustomContentView(notificationLayout)
+                            }
+                            val notification = notificationBuilder.build()
+                            startForeground(1, notification)
+                        }
+
+                        override fun onLoadCleared(placeholder: Drawable?) {}
+                    })
+            } else {
+                notificationLayout.setImageViewUri(R.id.img_bg_noti, imageUri)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    notificationBuilder.setCustomBigContentView(notificationLayout)
+                } else {
+                    notificationBuilder.setCustomContentView(notificationLayout)
+                }
+                val notification = notificationBuilder.build()
+                startForeground(1, notification)
+            }
         }
-        notification.setCustomContentView(notificationLayout)
-        val notificationBuilder: Notification = notification.build()
-        startForeground(1, notificationBuilder)
     }
 
     private fun getPendingIntent(context: Context, action: Int): PendingIntent? {
@@ -367,8 +370,9 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
     }
 
     private fun isListSortedAscending(list: MutableList<Song>): Boolean {
+        val collator = Collator.getInstance(Locale("vi"))
         for (i in 1 until list.size) {
-            if (list[i].getName().lowercase() < list[i - 1].getName().lowercase()) {
+            if (collator.compare(list[i].getName()!!, list[i - 1].getName()!!) < 0) {
                 return false
             }
         }
@@ -397,7 +401,7 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
 
     override fun onDestroy() {
         super.onDestroy()
-        serviceScope.cancel()
+        notificationScope.cancel()
         if (mediaPlayer != null) {
             mediaPlayer!!.release()
             mediaPlayer = null
