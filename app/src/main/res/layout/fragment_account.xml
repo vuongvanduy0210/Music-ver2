@@ -6,7 +6,7 @@
     tools:context=".fragment.AccountFragment"
     android:orientation="vertical"
     android:gravity="center"
-    android:padding="40dp">
+    android:padding="30dp">
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/img_user"
@@ -18,7 +18,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="20sp"
-        android:layout_marginTop="20dp" />
+        android:layout_marginTop="20dp"
+        android:textAlignment="center"
+        android:lines="1"
+        android:ellipsize="end" />
 
     <EditText
         android:id="@+id/edt_name"

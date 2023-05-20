@@ -76,5 +76,5 @@ const val EMPTY_LIST_SONG_TEXT_DEVICE = "No song in list. " +
 const val EMPTY_LIST_SONG_TEXT_FAVOURITE = "No song in list. " +
         "Please check your internet connection or add songs to favorites."
 
-const val TEXT_ADD_FAVOURITES = "Add To Favourites"
-const val TEXT_REMOVE_FAVOURITES = "Remove This Song"
+const val TEXT_ADD_FAVOURITES = "Add To \n Favourites"
+const val TEXT_REMOVE_FAVOURITES = "Remove \n This Song"

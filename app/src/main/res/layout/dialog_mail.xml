@@ -1,24 +1,25 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:gravity="center"
     android:padding="15dp">
 
     <TextView
         android:id="@+id/tv_email"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="20sp"
-        android:textStyle="bold" />
+        android:ellipsize="end"
+        android:lines="1"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_toStartOf="@id/bt_copy_email"/>
 
     <Button
         android:id="@+id/bt_copy_email"
         android:layout_width="25dp"
         android:layout_height="25dp"
         android:background="@drawable/ic_copy"
-        android:layout_gravity="center"
         android:layout_marginStart="15dp"
-        android:backgroundTint="@color/black"/>
+        android:backgroundTint="@color/black"
+        android:layout_alignParentEnd="true" />
 
-</LinearLayout>
+</RelativeLayout>
