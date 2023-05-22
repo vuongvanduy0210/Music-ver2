@@ -20,6 +20,8 @@ import com.vuongvanduy.music.adapter.ContactAdapter
 import com.vuongvanduy.music.databinding.DialogMailBinding
 import com.vuongvanduy.music.databinding.FragmentContactBinding
 import com.vuongvanduy.music.my_interface.IClickContactListener
+import com.vuongvanduy.music.util.EMAIL_CONTACT
+import com.vuongvanduy.music.util.MICROSOFT_CONTACT
 import com.vuongvanduy.music.viewmodel.ContactViewModel
 
 
@@ -76,9 +78,9 @@ class ContactFragment : Fragment() {
         val builder = AlertDialog.Builder(activity)
         val dialogMailBinding = DialogMailBinding.inflate(layoutInflater)
         if (name == "Gmail") {
-            dialogMailBinding.tvEmail.text = "vuongvanduyit03@gmail.com"
+            dialogMailBinding.tvEmail.text = EMAIL_CONTACT
         } else {
-            dialogMailBinding.tvEmail.text = "duycon123bn@outlook.com"
+            dialogMailBinding.tvEmail.text = MICROSOFT_CONTACT
         }
         dialogMailBinding.btCopyEmail.setOnClickListener {
             val clipboard = activity.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager

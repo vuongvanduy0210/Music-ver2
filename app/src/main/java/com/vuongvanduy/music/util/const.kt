@@ -78,3 +78,6 @@ const val EMPTY_LIST_SONG_TEXT_FAVOURITE = "No song in list. " +
 
 const val TEXT_ADD_FAVOURITES = "Add To \n Favourites"
 const val TEXT_REMOVE_FAVOURITES = "Remove \n This Song"
+
+const val EMAIL_CONTACT = "vuongvanduyit03@gmail.com"
+const val MICROSOFT_CONTACT = "duycon123bn@outlook.com"
