@@ -17,6 +17,7 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
@@ -47,6 +48,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var binding: ActivityMainBinding
     private lateinit var layoutHeaderBinding: LayoutHeaderNavigationBinding
     private lateinit var customButton: View
+    private lateinit var onBackPressedCallback: OnBackPressedCallback
 
     var currentFragment: Int = 0
     private var currentFragmentViewPager2Adapter: Int = 0
@@ -102,6 +104,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setBottomNavigation()
 
         initListenerMiniPlayer()
+
+        onBackPressCallBack()
     }
 
     private fun observerAction() {
@@ -441,41 +445,45 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
-    @SuppressLint("ResourceType")
-    @Deprecated("Deprecated in Java")
-    override fun onBackPressed() {
-        binding.apply {
-            if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-                // drawer is opening
-                drawerLayout.closeDrawer(GravityCompat.START)
-            } else if (binding.layoutMusicPlayer.visibility == View.VISIBLE) {
-                // music player is opening
-                closeMusicPlayerView()
+    private fun onBackPressCallBack() {
+        onBackPressedCallback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                binding.apply {
+                    if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                        // drawer is opening
+                        drawerLayout.closeDrawer(GravityCompat.START)
+                    } else if (binding.layoutMusicPlayer.visibility == View.VISIBLE) {
+                        // music player is opening
+                        closeMusicPlayerView()
 
-                val fragment = supportFragmentManager.findFragmentById(R.id.layout_music_player)
-                if (fragment != null) {
-                    supportFragmentManager.beginTransaction().remove(fragment).commit()
-                    supportFragmentManager.popBackStack()
-                }
-            } else if (mainUi.visibility == View.GONE && contentFrame.visibility == View.VISIBLE) {
-                // main is gone and content frame is opening
-                if (currentFragment == FRAGMENT_CHANGE_PASSWORD) {
-                    supportFragmentManager.popBackStack()
-                    currentFragment = FRAGMENT_ACCOUNT
-                } else {
-                    currentFragment = 0
-                    setTitleForToolbar(0, 1)
-                    if (selectedMenuItem == null) {
-                        selectedMenuItem = binding.navigationView.menu.findItem(R.id.nav_appearance)
+                        val fragment = supportFragmentManager.findFragmentById(R.id.layout_music_player)
+                        if (fragment != null) {
+                            supportFragmentManager.beginTransaction().remove(fragment).commit()
+                            supportFragmentManager.popBackStack()
+                        }
+                    } else if (mainUi.visibility == View.GONE && contentFrame.visibility == View.VISIBLE) {
+                        // main is gone and content frame is opening
+                        if (currentFragment == FRAGMENT_CHANGE_PASSWORD) {
+                            supportFragmentManager.popBackStack()
+                            currentFragment = FRAGMENT_ACCOUNT
+                        } else {
+                            currentFragment = 0
+                            setTitleForToolbar(0, 1)
+                            if (selectedMenuItem == null) {
+                                selectedMenuItem = binding.navigationView.menu.findItem(R.id.nav_appearance)
+                            }
+                            selectedMenuItem!!.isChecked = false
+                            closeNavigation()
+                            if (currentFragmentViewPager2Adapter != FRAGMENT_HOME) {
+                                customButton.visibility = View.VISIBLE
+                            }
+                        }
+                    } else if (currentFragmentViewPager2Adapter != FRAGMENT_HOME) {
+                        bottomNavigation.currentItem = 0
+                    } else {
+                        finish()
                     }
-                    selectedMenuItem!!.isChecked = false
-                    closeNavigation()
-                    if (currentFragmentViewPager2Adapter != FRAGMENT_HOME) {
-                        customButton.visibility = View.VISIBLE
-                    }
                 }
-            } else {
-                super.onBackPressed()
             }
         }
     }
@@ -546,11 +554,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         super.onResume()
         Log.e(MAIN_ACTIVITY_TAG, "onResume")
         viewModel.setUser(FirebaseAuth.getInstance().currentUser)
+        onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
     }
 
     override fun onPause() {
         super.onPause()
         Log.e(MAIN_ACTIVITY_TAG, "onPause")
+        onBackPressedCallback.remove()
     }
 
     override fun onDestroy() {

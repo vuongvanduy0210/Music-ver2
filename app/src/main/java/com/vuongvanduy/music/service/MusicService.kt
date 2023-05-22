@@ -1,5 +1,6 @@
 package com.vuongvanduy.music.service
 
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
@@ -13,7 +14,9 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.util.Log
 import android.widget.RemoteViews
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
@@ -33,7 +36,8 @@ import java.text.Collator
 import java.util.Locale
 
 
-class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener {
+class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener,
+    MediaPlayer.OnErrorListener {
 
     private var mediaPlayer: MediaPlayer? = null
 
@@ -117,22 +121,20 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
         }
 
         mediaPlayer = MediaPlayer()
-        mediaPlayer!!.setOnCompletionListener(this)
-        mediaPlayer!!.setOnPreparedListener(this)
         mediaPlayer?.apply {
+            setOnCompletionListener(this@MusicService)
+            setOnPreparedListener(this@MusicService)
+            setOnErrorListener(this@MusicService)
+
             val uri = Uri.parse(currentSong?.getResourceUri())
             setDataSource(this@MusicService, uri)
-            prepare()
-            finalTime = duration
-        }
-        isPlaying = true
-        sendNotification()
-        sendData(ACTION_START)
-
-        if (isShuffling && isListSortedAscending(songs!!)) {
-            songs?.shuffle()
+            this@MusicService.isPlaying = false
+            sendNotification()
+            sendData(ACTION_START)
+            prepareAsync()
         }
     }
+
 
     private fun previousMusic() {
         var index = currentSong?.let { getIndexFromListSong(it) }
@@ -144,7 +146,6 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
         }
         currentSong = songs!![index!! - 1]
         startMusic()
-        sendNotification()
         sendData(ACTION_PREVIOUS)
     }
 
@@ -178,7 +179,6 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
         }
         currentSong = songs!![index + 1]
         startMusic()
-        sendNotification()
         sendData(ACTION_NEXT)
     }
 
@@ -204,6 +204,38 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
         }
         isShuffling = !isShuffling
         sendData(ACTION_SHUFFLE)
+    }
+
+    override fun onCompletion(mp: MediaPlayer?) {
+        Log.e(MUSIC_SERVICE_TAG, "onCompletion")
+        if (mp == null) {
+            return
+        }
+        if (isLooping) {
+            mp.start()
+        } else {
+            Looper.myLooper().let {
+                if (it != null) {
+                    Handler(it).postDelayed({ nextMusic() }, 1500)
+                }
+            }
+        }
+    }
+
+    override fun onPrepared(mp: MediaPlayer?) {
+        Log.e(MUSIC_SERVICE_TAG, "onPrepared")
+        isPlaying = true
+        if (mp != null) {
+            finalTime = mp.duration
+        }
+        sendNotification()
+        sendData(ACTION_START)
+
+        if (isShuffling && isListSortedAscending(songs!!)) {
+            songs?.shuffle()
+        }
+        mp!!.start()
+        updateCurrentTime()
     }
 
     private fun sendNotification() {
@@ -379,26 +411,6 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
         return true
     }
 
-    override fun onCompletion(mp: MediaPlayer?) {
-        if (mediaPlayer == null) {
-            return
-        }
-        if (isLooping) {
-            mp!!.start()
-        } else {
-            Looper.myLooper().let {
-                if (it != null) {
-                    Handler(it).postDelayed({ nextMusic() }, 1500)
-                }
-            }
-        }
-    }
-
-    override fun onPrepared(mp: MediaPlayer?) {
-        mp!!.start()
-        updateCurrentTime()
-    }
-
     override fun onDestroy() {
         super.onDestroy()
         notificationScope.cancel()
@@ -406,5 +418,19 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
             mediaPlayer!!.release()
             mediaPlayer = null
         }
+    }
+
+    @SuppressLint("ShowToast")
+    override fun onError(mp: MediaPlayer?, what: Int, extra: Int): Boolean {
+        Log.e(MUSIC_SERVICE_TAG, "MediaPlayer onError")
+        if (isPlaying) {
+            pauseMusic()
+            Toast.makeText(
+                this@MusicService,
+                "Can't play music. Check your internet connection.",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+        return true
     }
 }
