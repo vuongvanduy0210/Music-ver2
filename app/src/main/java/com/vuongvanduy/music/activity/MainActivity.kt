@@ -120,9 +120,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
         viewModel.actionMusic.observe(this) { value ->
             when (value) {
-                ACTION_START -> viewModel.currentSong?.let { setLayoutMiniPlayer(it) }
-                ACTION_NEXT -> viewModel.currentSong?.let { setLayoutMiniPlayer(it) }
-                ACTION_PREVIOUS -> viewModel.currentSong?.let { setLayoutMiniPlayer(it) }
+                ACTION_START, ACTION_NEXT, ACTION_PREVIOUS -> viewModel.currentSong?.let {
+                    setLayoutMiniPlayer(it)
+                }
+
                 ACTION_CLEAR -> {
                     viewModel.getPlaying().value = false
                     binding.apply {
@@ -277,46 +278,46 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private fun playMusic() {
         when (currentFragmentViewPager2Adapter) {
             FRAGMENT_ONLINE_SONGS -> {
-                viewModel.currentListName = TITLE_ONLINE_SONGS
-                viewModel.getOnlineSongs().apply {
-                    if (value != null) {
-                        viewModel.apply {
+                viewModel.apply {
+                    currentListName = TITLE_ONLINE_SONGS
+                    getOnlineSongs().apply {
+                        if (value != null) {
                             currentSong = value!![0]
                             sendListSongToService(value!!)
                             sendDataToService(ACTION_START)
+                            binding.miniPlayer.visibility = View.VISIBLE
+                            this@MainActivity.openMusicPlayer()
                         }
-                        binding.miniPlayer.visibility = View.VISIBLE
-                        openMusicPlayer()
-                    }
-                }
-            }
-
-            FRAGMENT_DEVICE_SONGS -> {
-                viewModel.currentListName = TITLE_DEVICE_SONGS
-                viewModel.getDeviceSongs().apply {
-                    if (value != null) {
-                        viewModel.apply {
-                            currentSong = value!![0]
-                            sendListSongToService(value!!)
-                            sendDataToService(ACTION_START)
-                        }
-                        binding.miniPlayer.visibility = View.VISIBLE
-                        openMusicPlayer()
                     }
                 }
             }
 
             FRAGMENT_FAVOURITE_SONGS -> {
-                viewModel.currentListName = TITLE_FAVOURITE_SONGS
-                viewModel.getFavouriteSongs().apply {
-                    if (value != null && value!!.isNotEmpty()) {
-                        viewModel.apply {
+                viewModel.apply {
+                    currentListName = TITLE_FAVOURITE_SONGS
+                    getFavouriteSongs().apply {
+                        if (value != null) {
                             currentSong = value!![0]
                             sendListSongToService(value!!)
                             sendDataToService(ACTION_START)
+                            binding.miniPlayer.visibility = View.VISIBLE
+                            this@MainActivity.openMusicPlayer()
                         }
-                        binding.miniPlayer.visibility = View.VISIBLE
-                        openMusicPlayer()
+                    }
+                }
+            }
+
+            FRAGMENT_DEVICE_SONGS -> {
+                viewModel.apply {
+                    currentListName = TITLE_DEVICE_SONGS
+                    getDeviceSongs().apply {
+                        if (value != null) {
+                            currentSong = value!![0]
+                            sendListSongToService(value!!)
+                            sendDataToService(ACTION_START)
+                            binding.miniPlayer.visibility = View.VISIBLE
+                            this@MainActivity.openMusicPlayer()
+                        }
                     }
                 }
             }
@@ -336,16 +337,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             if (it != null) {
                 // reload favourite songs
                 dataViewModel.setUser(it)
-
-                val name = it.displayName
-                val email = it.email
-                val photoUrl = it.photoUrl
                 layoutHeaderBinding.apply {
-                    Glide.with(this@MainActivity).load(photoUrl)
+                    Glide.with(this@MainActivity).load(it.photoUrl)
                         .error(R.drawable.img_avatar_error)
                         .into(imgAvatar)
-                    tvUserName.text = name
-                    tvEmail.text = email
+                    tvUserName.text = it.displayName
+                    tvEmail.text = it.email
                 }
             } else {
                 layoutHeaderBinding.apply {
@@ -373,22 +370,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     currentFragmentViewPager2Adapter = position + 1
                     setTitleForToolbar(position, 2)
                     customButton.apply {
-                        when (currentFragmentViewPager2Adapter) {
-                            FRAGMENT_HOME -> {
-                                visibility = View.GONE
-                            }
-
-                            FRAGMENT_ONLINE_SONGS -> {
-                                visibility = View.VISIBLE
-                            }
-
-                            FRAGMENT_FAVOURITE_SONGS -> {
-                                visibility = View.VISIBLE
-                            }
-
-                            FRAGMENT_DEVICE_SONGS -> {
-                                visibility = View.VISIBLE
-                            }
+                        visibility = if (currentFragmentViewPager2Adapter == FRAGMENT_HOME) {
+                            View.GONE
+                        } else {
+                            View.VISIBLE
                         }
                     }
                 }
@@ -456,7 +441,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         // music player is opening
                         closeMusicPlayerView()
 
-                        val fragment = supportFragmentManager.findFragmentById(R.id.layout_music_player)
+                        val fragment =
+                            supportFragmentManager.findFragmentById(R.id.layout_music_player)
                         if (fragment != null) {
                             supportFragmentManager.beginTransaction().remove(fragment).commit()
                             supportFragmentManager.popBackStack()
@@ -470,7 +456,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             currentFragment = 0
                             setTitleForToolbar(0, 1)
                             if (selectedMenuItem == null) {
-                                selectedMenuItem = binding.navigationView.menu.findItem(R.id.nav_appearance)
+                                selectedMenuItem =
+                                    binding.navigationView.menu.findItem(R.id.nav_appearance)
                             }
                             selectedMenuItem!!.isChecked = false
                             closeNavigation()
