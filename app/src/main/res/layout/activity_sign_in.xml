@@ -9,6 +9,15 @@
     android:orientation="vertical"
     android:padding="20dp">
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/sign_in"
+        android:textSize="30sp"
+        android:layout_marginBottom="15dp"
+        android:textColor="@color/login_title_color"
+        android:textStyle="bold"/>
+
     <EditText
         android:id="@+id/edt_email"
         android:layout_width="match_parent"

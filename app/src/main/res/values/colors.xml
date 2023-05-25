@@ -19,4 +19,6 @@
     <color name="brown">#8C3D26</color>
 
     <color name="blueDark">#6CB3D4</color>
+
+    <color name="login_title_color">#127BAB</color>
 </resources>
