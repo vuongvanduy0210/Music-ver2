@@ -32,6 +32,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import java.lang.Exception
 import java.text.Collator
 import java.util.Locale
 
@@ -127,11 +128,15 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
             setOnErrorListener(this@MusicService)
 
             val uri = Uri.parse(currentSong?.getResourceUri())
-            setDataSource(this@MusicService, uri)
-            this@MusicService.isPlaying = false
-            sendNotification()
-            sendData(ACTION_START)
-            prepareAsync()
+            try {
+                setDataSource(this@MusicService, uri)
+                this@MusicService.isPlaying = false
+                sendNotification()
+                sendData(ACTION_START)
+                prepareAsync()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 
@@ -427,7 +432,7 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
             pauseMusic()
             Toast.makeText(
                 this@MusicService,
-                "Can't play music. Check your internet connection.",
+                "Can't play this song. Check your internet connection or reload app.",
                 Toast.LENGTH_SHORT
             ).show()
         }

@@ -20,12 +20,10 @@ import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.firebase.auth.FirebaseAuth
 import com.vuongvanduy.music.activity.MainActivity
 import com.vuongvanduy.music.adapter.SongAdapter
 import com.vuongvanduy.music.databinding.FragmentDeviceSongsBinding
@@ -95,12 +93,10 @@ class DeviceSongsFragment : Fragment() {
                 playSong(song)
             }
 
-            override fun onClickAddFavourites(song: Song) {
-                addToFavourites(song)
-            }
+            override fun onClickAddFavourites(song: Song) {}
 
             override fun onClickRemoveFavourites(song: Song) {}
-        }, TITLE_DEVICE_SONGS)
+        })
         viewModel.getSongs().apply {
             if (value == null || value!!.isEmpty()) {
                 binding.apply {
@@ -133,15 +129,6 @@ class DeviceSongsFragment : Fragment() {
 
     private fun playSong(song: Song) {
         requestPermissionPostNotification(song)
-    }
-
-    private fun addToFavourites(song: Song) {
-        if (FirebaseAuth.getInstance().currentUser == null) {
-            Toast.makeText(activity, "You need to log in to use this feature", Toast.LENGTH_SHORT)
-                .show()
-        } else {
-            dataViewModel.setFavouriteSong(song)
-        }
     }
 
     private fun requestPermissionPostNotification(song: Song) {

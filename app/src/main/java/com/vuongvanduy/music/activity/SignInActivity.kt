@@ -124,13 +124,11 @@ class SignInActivity : AppCompatActivity() {
     private fun onClickSignUp() {
         val intent = Intent(this@SignInActivity, SignUpActivity::class.java)
         startActivity(intent)
-        finish()
     }
 
     private fun onClickBtGuest() {
         val intent = Intent(this@SignInActivity, MainActivity::class.java)
         startActivity(intent)
-        finishAffinity()
     }
 
     private fun onClickForgotPassword() {
@@ -144,5 +142,13 @@ class SignInActivity : AppCompatActivity() {
         val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         val view: View = binding.root
         imm.hideSoftInputFromWindow(view.windowToken, 0)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        binding.apply {
+            tvError.text = ""
+            tvError.visibility = View.GONE
+        }
     }
 }

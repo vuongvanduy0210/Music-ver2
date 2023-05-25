@@ -468,6 +468,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     } else if (currentFragmentViewPager2Adapter != FRAGMENT_HOME) {
                         bottomNavigation.currentItem = 0
                     } else {
+                        Log.e(MAIN_ACTIVITY_TAG, "Close app")
                         finish()
                     }
                 }

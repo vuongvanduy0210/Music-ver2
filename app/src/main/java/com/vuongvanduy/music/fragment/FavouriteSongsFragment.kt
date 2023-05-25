@@ -25,7 +25,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.vuongvanduy.music.activity.MainActivity
-import com.vuongvanduy.music.adapter.SongAdapter
+import com.vuongvanduy.music.adapter.ExtendSongAdapter
 import com.vuongvanduy.music.databinding.FragmentFavouriteSongsBinding
 import com.vuongvanduy.music.model.Song
 import com.vuongvanduy.music.my_interface.IClickSongListener
@@ -39,7 +39,7 @@ class FavouriteSongsFragment : Fragment() {
 
     private lateinit var activity: MainActivity
 
-    private lateinit var songAdapter: SongAdapter
+    private lateinit var songAdapter: ExtendSongAdapter
 
     private lateinit var viewModel: FavouriteSongsViewModel
 
@@ -103,7 +103,7 @@ class FavouriteSongsFragment : Fragment() {
     }
 
     private fun setRecyclerViewSong() {
-        songAdapter = SongAdapter(object : IClickSongListener {
+        songAdapter = ExtendSongAdapter(object : IClickSongListener {
             override fun onClickSong(song: Song) {
                 viewModel.setSong(song)
                 playSong(song)

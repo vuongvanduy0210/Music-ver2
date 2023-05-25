@@ -63,6 +63,7 @@
         android:layout_height="wrap_content"
         android:text="@string/title_home"
         android:textSize="17sp"
+        android:textColor="@color/text_color"
         android:gravity="center"
         android:visibility="gone"/>
 

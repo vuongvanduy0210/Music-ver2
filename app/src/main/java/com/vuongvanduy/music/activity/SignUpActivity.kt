@@ -22,6 +22,7 @@ class SignUpActivity : AppCompatActivity() {
     private lateinit var progressDialog: ProgressDialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.e("SignUpActivity", "onCreate")
         super.onCreate(savedInstanceState)
         binding = ActivitySignUpBinding.inflate(layoutInflater)
         setContentView(binding.root)
