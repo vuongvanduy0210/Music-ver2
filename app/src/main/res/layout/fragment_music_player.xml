@@ -30,7 +30,7 @@
                 android:layout_alignParentBottom="true"
                 android:layout_marginStart="15dp"
                 android:layout_marginBottom="10dp"
-                android:background="@color/blueLight"
+                android:background="@color/bg_toolbar_color"
                 android:src="@drawable/ic_back" />
 
             <TextView

@@ -91,7 +91,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:scaleType="centerCrop"
-                        android:alpha="0.3" />
+                        android:alpha="0.6"
+                        android:foreground="@color/bg_color"/>
 
                     <de.hdodenhof.circleimageview.CircleImageView
                         android:id="@+id/img_music"
