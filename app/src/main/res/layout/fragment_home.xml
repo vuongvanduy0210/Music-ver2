@@ -5,7 +5,8 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".fragment.HomeFragment"
-    android:gravity="center">
+    android:gravity="center"
+    android:background="@color/bg_color">
 
     <ImageView
         android:id="@+id/img_back_ground"

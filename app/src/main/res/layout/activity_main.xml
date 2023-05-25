@@ -23,7 +23,7 @@
                 android:id="@+id/tool_bar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                android:background="@android:color/holo_blue_dark"
+                android:background="@color/bg_toolbar_color"
                 app:popupTheme="@style/Theme.AppCompat.Light"
                 app:contentInsetEnd="10dp">
 
@@ -33,7 +33,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/title_home"
                     android:textSize="22sp"
-                    android:textColor="@color/black"
+                    android:textColor="@color/text_color"
                     android:layout_gravity="center"
                     android:textStyle="bold" />
 
@@ -90,8 +90,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:scaleType="centerCrop"
-                        android:alpha="0.3"
-                        android:background="@color/gray"/>
+                        android:alpha="0.3" />
 
                     <de.hdodenhof.circleimageview.CircleImageView
                         android:id="@+id/img_music"
@@ -117,7 +116,7 @@
                             android:layout_height="wrap_content"
                             android:textStyle="bold"
                             android:textSize="@dimen/text_size_tv_name_song"
-                            android:textColor="@color/black"
+                            android:textColor="@color/text_color"
                             android:lines="1"
                             android:ellipsize="end"
                             tools:ignore="SpUsage" />
@@ -127,7 +126,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:textSize="@dimen/text_size_tv_singer"
-                            android:textColor="@color/black"
+                            android:textColor="@color/text_color"
                             android:lines="1"
                             android:ellipsize="end"
                             tools:ignore="SpUsage"
@@ -190,7 +189,6 @@
                 android:layout_height="@dimen/height_bottom_navigation"
                 android:layout_alignParentBottom="true"
                 android:visibility="visible"
-                android:background="@color/teal_700"
                 app:itemTextColor="@color/custom_bottom_navigation"
                 app:itemIconTint="@color/custom_bottom_navigation" />
 

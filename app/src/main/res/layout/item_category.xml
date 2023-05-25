@@ -2,8 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="20dp"
-    >
+    android:layout_marginTop="20dp">
 
     <TextView
         android:id="@+id/tv_name_category"
@@ -11,7 +10,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:text="@string/title_home"
-        android:textColor="@color/black"
+        android:textColor="@color/text_color"
         android:textSize="23dp"
         android:textStyle="bold"
         android:layout_marginTop="5dp"/>
@@ -20,9 +19,9 @@
         android:id="@+id/bt_view_all"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/black"
-        android:textSize="18dp"
-        android:text="View Alls"
+        android:textColor="@color/text_color"
+        android:textSize="18sp"
+        android:text="@string/view_all"
         android:textStyle="italic"
         android:layout_marginStart="10dp"
         android:layout_marginTop="7dp"

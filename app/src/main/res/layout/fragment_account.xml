@@ -6,7 +6,8 @@
     tools:context=".fragment.AccountFragment"
     android:orientation="vertical"
     android:gravity="center"
-    android:padding="30dp">
+    android:padding="30dp"
+    android:background="@color/bg_color">
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/img_user"

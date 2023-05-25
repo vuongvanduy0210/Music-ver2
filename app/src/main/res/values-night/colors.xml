@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="login_title_color">#C84773</color>
+    <color name="bg_toolbar_color">#151C4A</color>
+    <color name="text_color">#FFFFFFFF</color>
+    <color name="bg_color">#000000</color>
+    <color name="seekbar_color">#FF03DAC5</color>
+    <color name="extend_bg_color">#921E45</color>
 </resources>

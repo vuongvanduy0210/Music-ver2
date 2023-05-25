@@ -475,7 +475,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
-    private fun setTitleForToolbar(position: Int, mode: Int) {
+    fun setTitleForToolbar(position: Int, mode: Int) {
         binding.toolBarTitle.text = if (mode == 1) {
             when (currentFragmentViewPager2Adapter) {
                 FRAGMENT_HOME -> TITLE_HOME

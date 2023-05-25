@@ -16,6 +16,7 @@ import com.vuongvanduy.music.model.ThemeMode
 import com.vuongvanduy.music.util.DARK_MODE
 import com.vuongvanduy.music.util.LIGHT_MODE
 import com.vuongvanduy.music.util.SYSTEM_MODE
+import com.vuongvanduy.music.util.TITLE_APPEARANCE
 
 
 class AppearanceFragment : Fragment() {
@@ -97,6 +98,7 @@ class AppearanceFragment : Fragment() {
             0 -> {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
                 activity.viewModel.setThemeMode(SYSTEM_MODE)
+
             }
 
             1 -> {
@@ -109,7 +111,7 @@ class AppearanceFragment : Fragment() {
                 activity.viewModel.setThemeMode(DARK_MODE)
             }
         }
-
+        activity.getBinding().toolBarTitle.text = TITLE_APPEARANCE
         binding.themeSpinner.setSelection(position)
     }
 }
