@@ -52,8 +52,8 @@ class FavouriteSongsViewModel : ViewModel() {
 
     private fun pushSongToFirebase(email: String, song: Song, activity: MainActivity) {
         val database = Firebase.database
-        val myRef = database.getReference(email.substringBefore("."))
-            .child("favourite_songs")
+        val myRef = database.getReference("favourite_songs")
+            .child(email.substringBefore("."))
         myRef.child(song.getName()!!).setValue(song).addOnCompleteListener {
             Log.e("MainActivity", "Add all song success")
             activity.viewModel.apply {
@@ -76,8 +76,8 @@ class FavouriteSongsViewModel : ViewModel() {
         val database = Firebase.database
         val myRef = song.getName()?.let {
             email?.let { it1 ->
-                database.getReference(it1)
-                    .child("favourite_songs").child(it)
+                database.getReference("favourite_songs")
+                    .child(it1).child(it)
             }
         }
         myRef?.removeValue { _, _ ->

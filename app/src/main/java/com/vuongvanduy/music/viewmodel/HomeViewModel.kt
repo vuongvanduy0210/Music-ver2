@@ -174,7 +174,7 @@ class HomeViewModel : ViewModel() {
         }
         val email = FirebaseAuth.getInstance().currentUser?.email?.substringBefore(".")
         val database = Firebase.database
-        val myRef = email?.let { database.getReference(it).child("favourite_songs") }
+        val myRef = email?.let { database.getReference("favourite_songs").child(it) }
         myRef?.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 for (postSnapshot in dataSnapshot.children) {
