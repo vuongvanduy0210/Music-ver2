@@ -12,6 +12,8 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -67,6 +69,34 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
+    private val currentTimeReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent != null) {
+                viewModel.receiveCurrentTime(intent)
+
+            }
+        }
+
+    }
+
+    private val handler = Looper.myLooper()
+
+    inner class UpdateSeekBar : Runnable {
+        override fun run() {
+            val currentTime = viewModel.currentTime
+            Log.e(MAIN_ACTIVITY_TAG, viewModel.currentTime.toString())
+            binding.progressBar.progress = currentTime
+            binding.progressBar.isEnabled = false
+            Log.e(MAIN_ACTIVITY_TAG, binding.progressBar.progress.toString())
+
+            handler.let {
+                if (it != null) {
+                    Handler(it).postDelayed(this, 1000)
+                }
+            }
+        }
+    }
+
     private val activityResultLauncherNotification =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             if (isGranted) {
@@ -92,6 +122,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         LocalBroadcastManager.getInstance(this)
             .registerReceiver(serviceReceiver, IntentFilter(SEND_DATA))
+        LocalBroadcastManager.getInstance(this)
+            .registerReceiver(currentTimeReceiver, IntentFilter(SEND_CURRENT_TIME))
 
         checkServiceIsRunning()
 
@@ -109,46 +141,54 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun observerAction() {
-        viewModel.getPlaying().observe(this) {
-            binding.imgPlay.apply {
-                if (it) {
-                    setImageResource(R.drawable.ic_pause)
-                } else {
-                    setImageResource(R.drawable.ic_play)
+        viewModel.apply {
+            getPlaying().observe(this@MainActivity) {
+                binding.imgPlay.apply {
+                    if (it) {
+                        setImageResource(R.drawable.ic_pause)
+                    } else {
+                        setImageResource(R.drawable.ic_play)
+                    }
                 }
             }
-        }
-        viewModel.actionMusic.observe(this) { value ->
-            when (value) {
-                ACTION_START, ACTION_NEXT, ACTION_PREVIOUS -> viewModel.currentSong?.let {
-                    setLayoutMiniPlayer(it)
-                }
+            actionMusic.observe(this@MainActivity) { value ->
+                when (value) {
+                    ACTION_START, ACTION_NEXT, ACTION_PREVIOUS -> viewModel.currentSong?.let {
+                        setLayoutMiniPlayer(it)
+                    }
 
-                ACTION_CLEAR -> {
-                    viewModel.getPlaying().value = false
-                    binding.apply {
-                        miniPlayer.visibility = View.GONE
-                        if (layoutMusicPlayer.visibility == View.VISIBLE) {
-                            closeMusicPlayerView()
+                    ACTION_CLEAR -> {
+                        viewModel.getPlaying().value = false
+                        binding.apply {
+                            miniPlayer.visibility = View.GONE
+                            if (layoutMusicPlayer.visibility == View.VISIBLE) {
+                                closeMusicPlayerView()
+                            }
                         }
                     }
-                }
 
-                ACTION_RELOAD_DATA -> {
-                    viewModel.currentSong?.let { setLayoutMiniPlayer(it) }
-                    binding.miniPlayer.visibility = View.VISIBLE
-                }
-
-                ACTION_OPEN_MUSIC_PLAYER -> {
-                    if (viewModel.getPlaying().value == true
-                        && binding.contentFrame.visibility == View.VISIBLE
-                    ) {
-                        return@observe
+                    ACTION_RELOAD_DATA -> {
+                        viewModel.currentSong?.let { setLayoutMiniPlayer(it) }
+                        binding.miniPlayer.visibility = View.VISIBLE
                     }
-                    openMusicPlayerView()
-                }
 
-                else -> {}
+                    ACTION_OPEN_MUSIC_PLAYER -> {
+                        if (viewModel.getPlaying().value == true
+                            && binding.contentFrame.visibility == View.VISIBLE
+                        ) {
+                            return@observe
+                        }
+                        openMusicPlayerView()
+                    }
+
+                    else -> {}
+                }
+            }
+            finalTime.observe(this@MainActivity) {
+                val final = viewModel.finalTime.value
+                if (final != null) {
+                    binding.progressBar.max = final
+                }
             }
         }
     }
@@ -162,6 +202,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             tvMusicName.text = song.getName()
             tvSinger.text = song.getSinger()
             Glide.with(this@MainActivity).load(imageUri).into(imgBgMiniPlayer)
+        }
+
+        val updateSeekBar = UpdateSeekBar()
+        handler.let {
+            if (it != null) {
+                Handler(it).post(updateSeekBar)
+            }
         }
     }
 
@@ -555,6 +602,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         super.onDestroy()
         Log.e(MAIN_ACTIVITY_TAG, "onDestroy")
         LocalBroadcastManager.getInstance(this).unregisterReceiver(serviceReceiver)
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(currentTimeReceiver)
         viewModel.getThemeMode()?.let { DataLocalManager.putStringThemeMode(it) }
     }
 }

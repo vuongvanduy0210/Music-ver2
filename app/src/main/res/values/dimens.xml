@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="height_notification_music">80dp</dimen>
-    <dimen name="height_bottom_player">58dp</dimen>
+    <dimen name="height_bottom_player">62dp</dimen>
     <dimen name="height_bottom_navigation">53dp</dimen>
     <dimen name="height_action_bar">48dp</dimen>
 
@@ -11,4 +11,6 @@
 
     <dimen name="text_size_name_song_player_music">25dp</dimen>
     <dimen name="text_size_singer_player_music">22dp</dimen>
+
+    <dimen name="seekbar_height">3dp</dimen>
 </resources>

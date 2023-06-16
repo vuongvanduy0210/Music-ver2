@@ -191,7 +191,7 @@ class MusicPlayerFragment : Fragment() {
         }
     }
 
-    private fun sendActionToService(progress: Int) {
+    private fun sendCurrentTimeToService(progress: Int) {
         val intentActivity = Intent(activity, MusicService::class.java)
         intentActivity.putExtra(KEY_ACTION, ACTION_CONTROL_SEEK_BAR)
         intentActivity.putExtra(KEY_PROGRESS, progress)
@@ -220,7 +220,7 @@ class MusicPlayerFragment : Fragment() {
                 ) {
                     if (fromUser) {
                         // gui current time lai cho service
-                        sendActionToService(progress)
+                        sendCurrentTimeToService(progress)
                         if (viewModel.isPlaying.value == false) {
                             activity.viewModel.sendDataToService(ACTION_RESUME)
                         }

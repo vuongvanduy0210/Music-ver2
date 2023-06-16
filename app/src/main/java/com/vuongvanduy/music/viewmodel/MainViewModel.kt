@@ -36,8 +36,13 @@ class MainViewModel : ViewModel() {
         MutableLiveData<FirebaseUser>()
     }
 
+    val finalTime: MutableLiveData<Int> by lazy {
+        MutableLiveData<Int>()
+    }
+
     var currentSong: Song? = null
     var currentListName: String? = null
+    var currentTime: Int = 0
     private val isPlaying: MutableLiveData<Boolean> by lazy {
         MutableLiveData<Boolean>()
     }
@@ -84,6 +89,7 @@ class MainViewModel : ViewModel() {
         currentSong = bundle.getSerializable(KEY_SONG) as Song?
         isPlaying.value = bundle.getBoolean(KEY_STATUS_MUSIC)
         actionMusic.value = bundle.getInt(KEY_ACTION)
+        finalTime.value = bundle.getInt(KEY_FINAL_TIME)
     }
 
     fun onClickMiniPlayer() {
@@ -129,6 +135,15 @@ class MainViewModel : ViewModel() {
         bundle.putSerializable(KEY_LIST_SONGS, songs as Serializable)
         intent.putExtras(bundle)
         context.startService(intent)
+    }
+
+    fun receiveCurrentTime(intent: Intent) {
+        if (intent.action == SEND_CURRENT_TIME) {
+            val bundle = intent.extras
+            if (bundle != null) {
+                currentTime = bundle.getInt(KEY_CURRENT_TIME)
+            }
+        }
     }
 
     fun getPlaying(): MutableLiveData<Boolean> = isPlaying

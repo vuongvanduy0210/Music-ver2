@@ -136,8 +136,6 @@ class SignInActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-
-
     private fun hideKeyboard() {
         val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         val view: View = binding.root
