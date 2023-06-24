@@ -82,6 +82,7 @@ class ContactFragment : Fragment() {
         } else {
             dialogMailBinding.tvEmail.text = MICROSOFT_CONTACT
         }
+        dialogMailBinding.tvEmail.isSelected = true
         dialogMailBinding.btCopyEmail.setOnClickListener {
             val clipboard = activity.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
             val clip = ClipData.newPlainText("Email", dialogMailBinding.tvEmail.text)

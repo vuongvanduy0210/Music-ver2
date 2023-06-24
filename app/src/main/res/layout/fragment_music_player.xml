@@ -82,7 +82,11 @@
             android:textSize="@dimen/text_size_name_song_player_music"
             android:textColor="@color/text_color"
             android:singleLine="true"
-            android:ellipsize="end"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:scrollHorizontally="true"
             android:layout_gravity="center" />
 
         <TextView
@@ -91,8 +95,12 @@
             android:layout_height="wrap_content"
             android:textSize="@dimen/text_size_singer_player_music"
             android:textColor="@color/text_color"
-            android:lines="1"
-            android:ellipsize="end"
+            android:singleLine="true"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:scrollHorizontally="true"
             android:layout_gravity="center_horizontal"
             tools:ignore="SpUsage"
             android:textStyle="italic"/>

@@ -203,7 +203,9 @@ class MusicPlayerFragment : Fragment() {
             val imageUri = Uri.parse(song.getImageUri())
             Glide.with(activity).load(imageUri).into(circleImageView)
             tvMusicName.text = song.getName()
+            tvMusicName.isSelected = true
             tvSinger.text = song.getSinger()
+            tvSinger.isSelected = true
             Glide.with(activity).load(imageUri).into(imgBackGround)
         }
         setSeekBarStatus()

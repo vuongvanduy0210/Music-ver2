@@ -200,7 +200,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         binding.apply {
             Glide.with(this@MainActivity).load(imageUri).into(imgMusic)
             tvMusicName.text = song.getName()
+            tvMusicName.isSelected = true
             tvSinger.text = song.getSinger()
+            tvSinger.isSelected = true
             Glide.with(this@MainActivity).load(imageUri).into(imgBgMiniPlayer)
         }
 
