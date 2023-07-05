@@ -42,7 +42,7 @@ class HomeViewModel : ViewModel() {
     private val photos: MutableLiveData<MutableList<Photo>> by lazy {
         MutableLiveData<MutableList<Photo>>()
     }
-    private val allSongsShow: MutableLiveData<MutableList<Song>> by lazy {
+    private val onlineSongsShow: MutableLiveData<MutableList<Song>> by lazy {
         MutableLiveData<MutableList<Song>>()
     }
     private val deviceSongsShow: MutableLiveData<MutableList<Song>> by lazy {
@@ -101,8 +101,8 @@ class HomeViewModel : ViewModel() {
         getOnlineSongsShow()
         getDeviceSongsShow()
         val list = mutableListOf<Category>()
-        allSongsShow.value?.let { Category("Online Songs", it) }?.let { list.add(it) }
-        deviceSongsShow.value?.let { Category("Device Songs", it) }?.let { list.add(it) }
+        onlineSongsShow.value?.let { Category(TITLE_ONLINE_SONGS, it) }?.let { list.add(it) }
+        deviceSongsShow.value?.let { Category(TITLE_DEVICE_SONGS, it) }?.let { list.add(it) }
         return list
     }
 
@@ -113,7 +113,7 @@ class HomeViewModel : ViewModel() {
                 val song = onlineSongs.value!![i]
                 list.add(song)
             }
-            allSongsShow.value = list
+            onlineSongsShow.value = list
         }
     }
 

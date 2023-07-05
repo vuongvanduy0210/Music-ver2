@@ -11,6 +11,7 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.vuongvanduy.music.activity.MainActivity
 import com.vuongvanduy.music.model.Song
+import com.vuongvanduy.music.util.MAIN_ACTIVITY_TAG
 import com.vuongvanduy.music.util.TITLE_FAVOURITE_SONGS
 
 class FavouriteSongsViewModel : ViewModel() {
@@ -55,7 +56,7 @@ class FavouriteSongsViewModel : ViewModel() {
         val myRef = database.getReference("favourite_songs")
             .child(email.substringBefore("."))
         myRef.child(song.getName()!!).setValue(song).addOnCompleteListener {
-            Log.e("MainActivity", "Add all song success")
+            Log.e(MAIN_ACTIVITY_TAG, "Add all song success")
             activity.viewModel.apply {
                 if (currentListName != null && currentListName == TITLE_FAVOURITE_SONGS) {
                     if (songs.value != null) {
@@ -64,7 +65,7 @@ class FavouriteSongsViewModel : ViewModel() {
                 }
             }
         }.addOnFailureListener {
-            Log.e("MainActivity", "Add all song fail")
+            Log.e(MAIN_ACTIVITY_TAG, "Add all song fail")
         }
     }
 
