@@ -84,10 +84,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     inner class UpdateSeekBar : Runnable {
         override fun run() {
             val currentTime = viewModel.currentTime
-            Log.e(MAIN_ACTIVITY_TAG, viewModel.currentTime.toString())
             binding.progressBar.progress = currentTime
             binding.progressBar.isEnabled = false
-            Log.e(MAIN_ACTIVITY_TAG, binding.progressBar.progress.toString())
 
             handler.let {
                 if (it != null) {

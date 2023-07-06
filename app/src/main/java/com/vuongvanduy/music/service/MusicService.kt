@@ -7,6 +7,9 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
+import android.media.AudioAttributes
+import android.media.AudioFocusRequest
+import android.media.AudioManager
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Build
@@ -42,6 +45,9 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
 
     private var mediaPlayer: MediaPlayer? = null
 
+    private lateinit var audioManager: AudioManager
+    private lateinit var audioFocusRequest: AudioFocusRequest
+
     private var currentSong: Song? = null
     private var songs: MutableList<Song>? = null
     private var isPlaying: Boolean = false
@@ -59,6 +65,50 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
         if (mediaPlayer != null && isPlaying) {
             currentTime = mediaPlayer!!.currentPosition
             updateCurrentTime()
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun onCreate() {
+        super.onCreate()
+        checkOtherMusic()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun checkOtherMusic() {
+        audioManager = this.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        audioFocusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
+            .setAudioAttributes(
+                AudioAttributes.Builder()
+                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                    .build())
+            .setOnAudioFocusChangeListener {focusChange ->
+                when (focusChange) {
+                    AudioManager.AUDIOFOCUS_GAIN -> {
+                        // Lấy được quyền truy cập âm thanh
+                        resumeMusic()
+                    }
+                    AudioManager.AUDIOFOCUS_LOSS -> {
+                        // Mất quyền truy cập âm thanh
+                        pauseMusic()
+                    }
+                    AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
+                        // Mất quyền truy cập âm thanh tạm thời
+                        pauseMusic()
+                    }
+                    AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
+                        // Mất quyền truy cập âm thanh tạm thời và có thể giảm âm lượng
+                        resumeMusic()
+                    }
+                }
+            }
+            .build()
+
+        val result = audioManager.requestAudioFocus(audioFocusRequest)
+        if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+            Log.e(MUSIC_SERVICE_TAG, "Request audio focus success")
+        } else {
+            Log.e(MUSIC_SERVICE_TAG, "Request audio focus fail")
         }
     }
 
@@ -416,6 +466,7 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
         return true
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onDestroy() {
         super.onDestroy()
         notificationScope.cancel()
@@ -423,6 +474,7 @@ class MusicService : Service(), MediaPlayer.OnCompletionListener, MediaPlayer.On
             mediaPlayer!!.release()
             mediaPlayer = null
         }
+        audioManager.abandonAudioFocusRequest(audioFocusRequest)
     }
 
     @SuppressLint("ShowToast")
